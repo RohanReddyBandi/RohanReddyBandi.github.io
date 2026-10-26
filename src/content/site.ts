@@ -27,6 +27,41 @@ export const site = {
       { label: 'Building', value: 'Trackpad Scale, a Mac app that turns the trackpad into a scale' },
     ],
   },
+  // Selected work. Years come from each repo's first commit. Previews are
+  // [SCREENSHOT] placeholders until real images land in src/assets/work/.
+  work: [
+    {
+      title: 'TRADR',
+      line: 'Tinder for stocks.',
+      detail:
+        'Swipe buy or sell on candlestick charts with fake money, set your own stop loss and take profit, then see what happened and why the call was right or wrong.',
+      tags: ['React', 'TypeScript', 'Tailwind', 'lightweight-charts'],
+      year: '2026',
+      href: 'https://tradr-ebon.vercel.app/',
+      linkLabel: 'Live site',
+      inProgress: false,
+    },
+    {
+      title: 'Duck Days',
+      line: 'Pixel-duck countdown widgets for your home screen.',
+      detail: 'An iOS app with home screen widgets. Live on the App Store.',
+      tags: ['Swift', 'SwiftUI', 'WidgetKit'],
+      year: '2026',
+      href: 'https://apps.apple.com/us/app/duckdays/id6808773849',
+      linkLabel: 'App Store',
+      inProgress: false,
+    },
+    {
+      title: 'Trackpad Scale',
+      line: 'A Mac app that uses the trackpad to weigh things.',
+      detail: '',
+      tags: ['macOS', '[TAGS]'],
+      year: '2026',
+      href: '',
+      linkLabel: '',
+      inProgress: true,
+    },
+  ],
   ticker: [
     { name: 'TRADR', up: true },
     { name: 'Duck Days', up: true },

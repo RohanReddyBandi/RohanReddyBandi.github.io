@@ -4,6 +4,7 @@ import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 import About from './sections/About'
 import Ticker from './sections/Ticker'
+import Work from './sections/Work'
 
 // Stand-in for a section still waiting on its real build in a later phase
 function Shell({ id, label }: { id: string; label: string }) {
@@ -23,7 +24,7 @@ export default function App() {
       <main>
         <Hero />
         <About />
-        <Shell id="work" label="Selected work" />
+        <Work />
         <Shell id="experience" label="Experience" />
         <Shell id="off-the-clock" label="Off the clock" />
         <Ticker />

@@ -192,26 +192,35 @@
     opacity 0.3s;
 }
 
-[data-cursor="link"] .cursor__ring {
+[data-cursor-mode="link"] .cursor__ring {
   width: 58px;
   height: 58px;
 }
 
-/* VIEW: a filled disc with the word in it */
-[data-cursor="view"] .cursor__ring {
+/* VIEW / SOON: a filled disc with the word in it */
+[data-cursor-mode="view"] .cursor__ring,
+[data-cursor-mode="soon"] .cursor__ring {
   width: 88px;
   height: 88px;
   background: var(--accent);
 }
 
+[data-cursor-mode="soon"] .cursor__dot {
+  opacity: 0;
+}
+
+[data-cursor-mode="soon"] .cursor__label {
+  opacity: 1;
+}
+
 /* DRAG: a hollow ring (the orb stays visible) with a tag beside it */
-[data-cursor="drag"] .cursor__ring,
+[data-cursor-mode="drag"] .cursor__ring,
 [data-dragging] .cursor__ring {
   width: 54px;
   height: 54px;
 }
 
-[data-cursor="view"] .cursor__dot {
+[data-cursor-mode="view"] .cursor__dot {
   opacity: 0;
 }
 
@@ -221,11 +230,11 @@
   transition: opacity 0.2s;
 }
 
-[data-cursor="view"] .cursor__label {
+[data-cursor-mode="view"] .cursor__label {
   opacity: 1;
 }
 
-[data-cursor="drag"] .cursor__label,
+[data-cursor-mode="drag"] .cursor__label,
 [data-dragging] .cursor__label {
   position: absolute;
   top: 100%;

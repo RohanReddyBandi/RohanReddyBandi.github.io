@@ -61,6 +61,8 @@ export function useRevealRows(ref: RefObject<HTMLElement | null>, selector: stri
           ease: 'expo.out',
           stagger,
           delay,
+          // leave nothing behind (a lingering clip-path would cut off focus rings)
+          clearProps: 'clipPath,transform',
           scrollTrigger: { trigger: el, start: START, once: true },
         },
       )

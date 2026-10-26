@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import { finePointer, reducedMotion } from '../lib/motion'
 
 const INTERACTIVE = 'a, button, [role="button"], [role="slider"], summary, label'
-const LABELS: Record<string, string> = { view: 'View', drag: 'Drag' }
+const LABELS: Record<string, string> = { view: 'View', soon: 'Soon', drag: 'Drag' }
 
 /**
  * A dot that tracks the mouse and a ring that trails it. The ring grows over
@@ -26,10 +26,12 @@ export default function Cursor() {
     const ry = gsap.quickTo(ring.current, 'y', { duration: 0.45, ease: 'power3.out' })
     let mode = ''
 
+    // The current mode lives on <html> as data-cursor-mode (not data-cursor,
+    // or closest('[data-cursor]') below would find <html> itself)
     const setMode = (next: string) => {
       if (next === mode) return
       mode = next
-      root.dataset.cursor = next
+      root.dataset.cursorMode = next
       if (LABELS[next]) label.current!.textContent = LABELS[next]
     }
     const move = (e: PointerEvent) => {
@@ -55,7 +57,7 @@ export default function Cursor() {
       document.removeEventListener('pointerover', over)
       root.removeEventListener('mouseleave', hide)
       root.classList.remove('has-cursor')
-      delete root.dataset.cursor
+      delete root.dataset.cursorMode
       hide()
     }
   }, [])
