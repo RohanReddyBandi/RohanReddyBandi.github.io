@@ -3,6 +3,7 @@ import Intro from './components/Intro'
 import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 import About from './sections/About'
+import Experience from './sections/Experience'
 import Ticker from './sections/Ticker'
 import Work from './sections/Work'
 
@@ -25,7 +26,7 @@ export default function App() {
         <Hero />
         <About />
         <Work />
-        <Shell id="experience" label="Experience" />
+        <Experience />
         <Shell id="off-the-clock" label="Off the clock" />
         <Ticker />
         <Shell id="contact" label="Contact" />

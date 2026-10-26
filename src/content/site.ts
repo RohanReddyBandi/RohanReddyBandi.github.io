@@ -62,6 +62,33 @@ export const site = {
       inProgress: true,
     },
   ],
+  // Experience reel, in this order. [YEAR]-style brackets are waiting on you.
+  experience: [
+    {
+      title: 'Carnegie Mellon Robotics Academy',
+      caption: 'Robotics apprenticeship',
+      when: 'Summer 2024',
+      line: 'Built an Arduino robot and programmed its movement and sensor responses in C.',
+    },
+    {
+      title: 'The Data Mine',
+      caption: 'Purdue University',
+      when: '[YEAR]',
+      line: 'General cohort.',
+    },
+    {
+      title: 'DECA',
+      caption: '[EVENT]',
+      when: '[YEAR]',
+      line: 'Qualified for ICDC, the International Career Development Conference.',
+    },
+    {
+      title: 'Purdue University',
+      caption: 'B.S. Computer Science',
+      when: '[GRAD YEAR]',
+      line: 'Studying computer science.',
+    },
+  ],
   ticker: [
     { name: 'TRADR', up: true },
     { name: 'Duck Days', up: true },

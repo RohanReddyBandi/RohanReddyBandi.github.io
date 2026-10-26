@@ -296,6 +296,149 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Experience                                                          */
+/* ------------------------------------------------------------------ */
+
+/* Default (phones, reduced motion): a vertical list */
+.xp {
+  padding-block: clamp(6rem, 12vw, 11rem);
+}
+
+.xp__track {
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+
+.xp-panel {
+  display: grid;
+  gap: 1.25rem;
+  padding: 2rem var(--gutter);
+  border-top: 1px solid var(--line);
+}
+
+.xp-panel:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.xp-panel__caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.xp-panel__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1rem + 4.4vw, 3.75rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.xp-panel__line {
+  max-width: 34ch;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 1.1875rem;
+  line-height: 1.45;
+}
+
+.xp__progress {
+  display: none;
+}
+
+/* Wide screens with motion: the pinned horizontal reel */
+@media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
+  .xp {
+    display: flex;
+    flex-direction: column;
+    height: 100svh;
+    min-height: 560px;
+    padding-block: clamp(5.5rem, 12svh, 8rem) 0;
+    overflow: hidden;
+  }
+
+  .xp__viewport {
+    flex: 1;
+    min-height: 0;
+    margin-top: clamp(1.5rem, 4svh, 3rem);
+  }
+
+  .xp__track {
+    display: flex;
+    width: max-content;
+    height: 100%;
+    margin: 0;
+  }
+
+  .xp-panel {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    justify-content: space-between;
+    /* most of the screen on tablets, two-thirds of it on desktop */
+    width: clamp(28rem, 84vw, 54rem);
+    height: 100%;
+    padding: clamp(1.25rem, 3svh, 2.5rem) var(--gutter);
+    border: 0;
+    border-left: 1px solid var(--line);
+    container-type: inline-size;
+  }
+
+  @media (width >= 64rem) {
+    .xp-panel {
+      width: clamp(28rem, 66vw, 72rem);
+    }
+  }
+
+  .xp-panel:first-child {
+    border-left: 0;
+  }
+
+  .xp-panel:last-child {
+    border-bottom: 0;
+  }
+
+  /* Sized off the panel's width so "CARNEGIE MELLON" fits on one line */
+  .xp-panel__title {
+    max-width: 16ch;
+    font-size: min(8.4cqi, 8rem);
+    line-height: 0.88;
+  }
+
+  .xp-panel__line {
+    margin-top: clamp(1.25rem, 3svh, 2rem);
+    padding-top: clamp(1.25rem, 3svh, 2rem);
+    border-top: 1px solid var(--line);
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+  }
+
+  /* "01 / 04" plus a hairline that fills as the reel moves */
+  .xp__progress {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: clamp(1rem, 3svh, 2rem) var(--gutter) clamp(1.25rem, 4svh, 2.5rem);
+  }
+
+  .xp__bar {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .xp__fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: left;
+    scale: 0 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Ticker                                                              */
 /* ------------------------------------------------------------------ */
 
