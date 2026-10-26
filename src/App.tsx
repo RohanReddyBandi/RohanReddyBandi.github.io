@@ -1,4 +1,5 @@
 import { site } from './content/site'
+import HeroChart from './hero/HeroChart'
 
 // Phase 0 shell: tokens, type, grain and smooth scroll. Each section gets
 // replaced by its real build in later phases.
@@ -31,13 +32,14 @@ export default function App() {
       </header>
 
       <main>
-        <section id="top" className="site-grid min-h-svh content-end pb-[12vh]">
-          <h1 className="hero-name col-span-full">
+        <section id="top" className="site-grid relative min-h-svh content-end overflow-hidden pb-[12vh]">
+          <HeroChart />
+          <h1 className="hero-name relative col-span-full">
             <span>{site.name.first}</span>
             <span>{site.name.last}</span>
           </h1>
-          <p className="col-span-full mt-8 max-w-[34ch] text-lead text-muted md:col-span-5">{site.tagline.bull}</p>
-          <p className="label col-span-full mt-6 text-accent">Site in progress</p>
+          <p className="relative col-span-full mt-8 max-w-[34ch] text-lead text-muted md:col-span-5">{site.tagline.bull}</p>
+          <p className="label relative col-span-full mt-6 text-accent">Site in progress</p>
         </section>
 
         {sections.map((s) => (
