@@ -1,4 +1,5 @@
 import Cursor from './components/Cursor'
+import Intro from './components/Intro'
 import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 
@@ -28,6 +29,7 @@ export default function App() {
         ))}
       </main>
 
+      <Intro />
       <div className="grain" aria-hidden="true" />
       <Cursor />
     </>
