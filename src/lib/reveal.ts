@@ -25,6 +25,9 @@ export function useRevealLines(ref: RefObject<HTMLElement | null>, { delay = 0, 
     const split = SplitText.create(el, {
       type: 'lines',
       mask: 'lines',
+      // Lines keep words whole, so screen readers read it as-is. (The default
+      // puts aria-label on the element, which isn't allowed on a <p>.)
+      aria: 'none',
       autoSplit: true,
       onSplit(self) {
         if (played) return

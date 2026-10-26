@@ -79,19 +79,22 @@ export default function Contact() {
       <SectionHead label="Contact" id="contact-title" />
 
       <div className="contact__talk site-grid">
-        <p ref={talk} className="talk col-span-full" aria-label={TALK}>
-          {TALK.split(' ').map((word, w) => (
-            <Fragment key={w}>
-              {w > 0 && ' '}
-              <span className="talk__word" aria-hidden="true">
-                {[...word].map((ch, i) => (
-                  <span key={i} className="talk__letter">
-                    {ch}
-                  </span>
-                ))}
-              </span>
-            </Fragment>
-          ))}
+        <p ref={talk} className="talk col-span-full">
+          <span className="sr-only">{TALK}</span>
+          <span aria-hidden="true">
+            {TALK.split(' ').map((word, w) => (
+              <Fragment key={w}>
+                {w > 0 && ' '}
+                <span className="talk__word">
+                  {[...word].map((ch, i) => (
+                    <span key={i} className="talk__letter">
+                      {ch}
+                    </span>
+                  ))}
+                </span>
+              </Fragment>
+            ))}
+          </span>
         </p>
       </div>
 

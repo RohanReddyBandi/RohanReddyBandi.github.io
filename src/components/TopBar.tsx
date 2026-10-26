@@ -24,14 +24,20 @@ export default function TopBar() {
 
   useEffect(() => {
     let last = 0
-    return onScroll((y) => {
-      const el = bar.current
-      if (!el) return
+    const el = bar.current!
+    // Keyboard focus landing in the bar brings it back into view
+    const reveal = () => (el.dataset.hidden = 'false')
+    el.addEventListener('focusin', reveal)
+    const stop = onScroll((y) => {
       el.dataset.scrolled = String(y > 8)
       if (Math.abs(y - last) < 6) return
-      el.dataset.hidden = String(y > last && y > 160 && !menuOpenRef.current)
+      el.dataset.hidden = String(y > last && y > 160 && !menuOpenRef.current && !el.contains(document.activeElement))
       last = y
     })
+    return () => {
+      stop()
+      el.removeEventListener('focusin', reveal)
+    }
   }, [])
 
   useLayoutEffect(() => {
@@ -52,6 +58,9 @@ export default function TopBar() {
 
   return (
     <>
+      <a href="#content" className="skip-link label">
+        Skip to content
+      </a>
       <header ref={bar} className="topbar" data-menu={menuOpen}>
         <div className="site-grid items-center py-5">
           <div className="topbar__item col-span-1 md:col-span-2">

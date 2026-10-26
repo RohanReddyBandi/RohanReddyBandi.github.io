@@ -20,6 +20,7 @@ function riseLines(el: Element, scrollTrigger: ScrollTrigger.Vars) {
   return SplitText.create(el, {
     type: 'lines',
     mask: 'lines',
+    aria: 'none', // lines keep words whole; no aria-label needed
     autoSplit: true,
     onSplit(self) {
       if (played) return

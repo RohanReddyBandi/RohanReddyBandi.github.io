@@ -26,7 +26,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
-      # prebuild fetches the Fontshare fonts (see scripts/fetch-fonts.sh)
+      # The Fontshare fonts are fetched at build time (see scripts/fetch-fonts.sh);
+      # cache them so a slow or down Fontshare can't stall a deploy
+      - uses: actions/cache@v6
+        with:
+          path: |
+            public/fonts/ClashDisplay-Variable.woff2
+            public/fonts/GeneralSans-Variable.woff2
+          key: fontshare-${{ hashFiles('scripts/fetch-fonts.sh') }}
       - run: npm run build
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

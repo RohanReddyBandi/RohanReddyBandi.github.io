@@ -16,7 +16,7 @@ export default function App() {
     <>
       <TopBar />
 
-      <main>
+      <main id="content">
         <Hero />
         <About />
         <Work />
