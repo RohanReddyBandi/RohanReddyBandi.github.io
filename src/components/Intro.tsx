@@ -5,13 +5,13 @@ import { finePointer, lockScroll } from '../lib/motion'
 import { fontsLoaded, introWillPlay, markIntroSeen, markPageReady } from '../lib/sequence'
 import './intro.css'
 
-const WIPE_AT = 1 // s: counter hits 100, overlay lifts
-const WIPE_FOR = 0.65 // s
-const FONT_WAIT = 1200 // ms: longest we'll hold the wipe for fonts
+const WIPE_AT = 0.9 // s: counter hits 100, overlay lifts
+const WIPE_FOR = 0.6 // s
+const FONT_WAIT = 1100 // ms: longest we'll hold the wipe for fonts
 
 /**
  * "Opening bell": one candle draws itself while a counter runs to 100, then
- * the overlay lifts and the hero makes its entrance underneath. About 1.65s.
+ * the overlay lifts and the hero makes its entrance underneath. About 1.5s.
  * Any click, tap or key fast-forwards it. Once per session; never with
  * reduced motion.
  */
@@ -41,8 +41,8 @@ export default function Intro() {
             count.current!.textContent = String(Math.round(counter.v)).padStart(3, '0')
           },
         })
-        .fromTo('.intro__wick', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.inOut' }, 0.05)
-        .fromTo('.intro__body', { scaleY: 0 }, { scaleY: 1, duration: 0.7, ease: 'expo.out' }, 0.3)
+        .fromTo('.intro__wick', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.5, ease: 'power2.inOut' }, 0.05)
+        .fromTo('.intro__body', { scaleY: 0 }, { scaleY: 1, duration: 0.65, ease: 'expo.out' }, 0.25)
         .fromTo('.intro__chrome', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, stagger: 0.05 }, 0)
         // Hold here if the fonts somehow aren't in yet
         .addPause(WIPE_AT, () => {
