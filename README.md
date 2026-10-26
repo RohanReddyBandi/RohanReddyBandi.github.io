@@ -25,6 +25,9 @@ Other scripts:
 | `npm run preview` | Serves the built `dist/` locally |
 | `npm run lint` | Lints with oxlint |
 | `npm run fonts` | Re-fetches the Fontshare fonts (skips files already there) |
+| `npm run og` | Re-renders `public/og.png` (link preview) and the PNG favicons. Needs Node 22.18+ |
+
+Add `?duck` to the URL to summon the duck right away.
 
 ## Deploy
 
@@ -39,6 +42,8 @@ One-time setup (already done for this repo): **Settings → Pages → Build and 
 | `src/content/site.ts` | All copy and links. Anything in `[BRACKETS]` is a placeholder. |
 | `src/assets/signature.svg` | The signature drawn in About. A stroked SVG draws itself on scroll; a filled outline wipes in. |
 | `src/sections/` | One file per page section |
+| `404.html`, `src/not-found.tsx` | The "Market closed." page GitHub Pages serves for missing URLs |
+| `public/resume.pdf` | Your resume. Resume links only appear once this file exists. |
 | `src/styles/tokens.css` | Colors, type scale, easing |
 | `src/lib/motion.ts` | Lenis + GSAP wiring, reduced-motion check |
 | `public/` | Files served as-is (`favicon.svg`, `fonts/`, and later `resume.pdf`, `og.png`) |

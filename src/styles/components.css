@@ -138,6 +138,60 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* The duck (easter egg) and its confetti                              */
+/* ------------------------------------------------------------------ */
+
+.duck {
+  position: fixed;
+  bottom: clamp(0.25rem, 1.5svh, 1rem);
+  left: 0;
+  z-index: 70;
+  padding: 6px;
+}
+
+.duck__bird {
+  display: block;
+  width: clamp(44px, 3.6vw, 60px);
+  transform-origin: 50% 90%;
+}
+
+.duck__bird img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.duck__bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  padding: 4px 6px;
+  background: var(--accent);
+  color: var(--bg);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 6px;
+  transition:
+    opacity 0.2s,
+    translate 0.3s var(--ease-out);
+}
+
+.duck__bubble.is-shown {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
 /* Custom cursor (only with html.has-cursor; see Cursor.tsx)           */
 /* ------------------------------------------------------------------ */
 

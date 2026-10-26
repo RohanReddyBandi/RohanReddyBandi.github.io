@@ -10,7 +10,8 @@
     "prebuild": "npm run fonts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "og": "node scripts/make-og.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
@@ -22,6 +23,7 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",

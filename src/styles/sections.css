@@ -768,6 +768,72 @@ a.btn:focus-visible::before {
 }
 
 /* ------------------------------------------------------------------ */
+/* 404: Market closed                                                  */
+/* ------------------------------------------------------------------ */
+
+.nf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+.nf > header {
+  position: relative;
+}
+
+.nf__chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* The monitor dot at the end of the flatline */
+.nf__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  animation: nf-blink 1.2s steps(2, jump-none) infinite;
+}
+
+@keyframes nf-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.nf__body {
+  position: relative;
+  margin-top: auto;
+  padding-bottom: clamp(2rem, 8svh, 5rem);
+}
+
+.nf__title {
+  margin-top: 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 14vw, 16rem);
+  font-weight: 600;
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf__dot {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Ticker                                                              */
 /* ------------------------------------------------------------------ */
 

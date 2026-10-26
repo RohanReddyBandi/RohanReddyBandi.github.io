@@ -1,4 +1,5 @@
 import Cursor from './components/Cursor'
+import Duck from './components/Duck'
 import Footer from './components/Footer'
 import Intro from './components/Intro'
 import TopBar from './components/TopBar'
@@ -26,6 +27,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <Duck />
       <Intro />
       <div className="grain" aria-hidden="true" />
       <Cursor />
