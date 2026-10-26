@@ -84,10 +84,17 @@ export default function MobileMenu({
         </ul>
       </nav>
       <div className="site-grid label mt-auto pb-8">
-        <a href={site.links.resume} target="_blank" rel="noopener" className="col-span-2 py-3 text-accent">
-          Resume ↗
-        </a>
-        <a href={site.links.github} target="_blank" rel="noopener" className="col-span-2 justify-self-end py-3 text-fg">
+        {__HAS_RESUME__ && (
+          <a href={site.links.resume} target="_blank" rel="noopener" className="col-span-2 py-3 text-accent">
+            Resume ↗
+          </a>
+        )}
+        <a
+          href={site.links.github}
+          target="_blank"
+          rel="noopener"
+          className="col-span-2 col-start-3 justify-self-end py-3 text-fg"
+        >
           GitHub ↗
         </a>
       </div>

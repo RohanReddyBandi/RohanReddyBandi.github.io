@@ -564,6 +564,210 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Contact                                                             */
+/* ------------------------------------------------------------------ */
+
+.contact {
+  padding-block: clamp(5rem, 10vw, 9rem) clamp(4rem, 8vw, 7rem);
+}
+
+.contact__talk {
+  margin-block: clamp(2.5rem, 5vw, 4rem) clamp(3rem, 6vw, 5rem);
+  container-type: inline-size;
+}
+
+/*
+  Fills the column like the hero name: "LET'S TALK" measures 5.43em wide in
+  Clash Display at this tracking, so its size = column width / 5.5.
+  (The size lives on the paragraph so the space between words scales too.)
+*/
+.talk {
+  font-family: var(--font-display);
+  font-size: min(100cqi / 5.5, 22rem);
+  font-weight: 600;
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.talk__word {
+  display: inline-block;
+}
+
+.talk__letter {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Contact sheet rows: label, value, action */
+.contact__sheet {
+  border-top: 1px solid var(--line);
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-row__label {
+  color: var(--muted);
+}
+
+.contact-row__value {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  padding-block: 1.1rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 0.9rem + 1.6vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: left;
+  overflow-wrap: anywhere;
+  transition: color 0.3s;
+}
+
+.contact-row__value.is-placeholder {
+  color: var(--muted);
+}
+
+.contact-row__action {
+  flex: none;
+  color: var(--muted);
+  transition:
+    color 0.3s,
+    rotate 0.5s var(--ease-out);
+}
+
+a.contact-row__value:hover,
+button.contact-row__value:hover {
+  color: var(--accent);
+}
+
+a.contact-row__value:hover .contact-row__action {
+  color: var(--accent);
+  rotate: 45deg;
+}
+
+button.contact-row__value:hover .contact-row__action {
+  color: var(--accent);
+}
+
+@media (width >= 48rem) {
+  .contact-row {
+    grid-template-columns: 8rem 1fr;
+  }
+}
+
+/* The resume button: hairline box that fills with the accent from below */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.15rem 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--accent);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
+  isolation: isolate;
+  transition: color 0.4s var(--ease-out);
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent);
+  scale: 1 0;
+  transform-origin: bottom;
+  transition: scale 0.5s var(--ease-out);
+}
+
+a.btn:hover,
+a.btn:focus-visible {
+  color: var(--bg);
+}
+
+a.btn:hover::before,
+a.btn:focus-visible::before {
+  scale: 1 1;
+}
+
+.btn[aria-disabled="true"] {
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+/* Little confirmation that floats up from the bottom edge */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+  opacity: 0;
+  translate: -50% 120%;
+  pointer-events: none;
+  transition:
+    opacity 0.35s,
+    translate 0.5s var(--ease-out);
+}
+
+.toast.is-shown {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Footer                                                              */
+/* ------------------------------------------------------------------ */
+
+.footer {
+  padding-block: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.footer__signature {
+  width: min(100%, 15rem);
+  color: var(--accent);
+}
+
+.footer__top {
+  padding-block: 0.5rem;
+  color: var(--fg);
+  transition: color 0.3s;
+}
+
+.footer__top:hover {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::before,
+  .toast {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Ticker                                                              */
 /* ------------------------------------------------------------------ */
 

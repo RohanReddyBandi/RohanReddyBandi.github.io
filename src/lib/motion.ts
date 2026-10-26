@@ -69,13 +69,14 @@ export function scrollToTarget(target: HTMLElement | 'top') {
  * Returns false if there's no such section.
  */
 export function goTo(hash: string) {
-  const target = hash === '#top' ? 'top' : document.getElementById(decodeURIComponent(hash.slice(1)))
-  if (!target) return false
-  scrollToTarget(target)
-  history.pushState(null, '', hash === '#top' ? location.pathname : hash)
-  if (target !== 'top') {
-    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
-    target.focus({ preventScroll: true })
+  const el = document.getElementById(decodeURIComponent(hash.slice(1)))
+  const top = hash === '#top'
+  if (!el && !top) return false
+  scrollToTarget(top ? 'top' : el!)
+  history.pushState(null, '', top ? location.pathname : hash)
+  if (el) {
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1')
+    el.focus({ preventScroll: true })
   }
   return true
 }

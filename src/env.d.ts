@@ -1,0 +1,2 @@
+/** True when public/resume.pdf exists at build time (see vite.config.ts) */
+declare const __HAS_RESUME__: boolean

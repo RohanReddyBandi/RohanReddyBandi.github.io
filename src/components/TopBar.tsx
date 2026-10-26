@@ -73,13 +73,15 @@ export default function TopBar() {
                   </Magnetic>
                 </li>
               ))}
-              <li className="topbar__item">
-                <Magnetic>
-                  <RollLink href={site.links.resume} target="_blank" rel="noopener" className="label text-accent">
-                    Resume ↗
-                  </RollLink>
-                </Magnetic>
-              </li>
+              {__HAS_RESUME__ && (
+                <li className="topbar__item">
+                  <Magnetic>
+                    <RollLink href={site.links.resume} target="_blank" rel="noopener" className="label text-accent">
+                      Resume ↗
+                    </RollLink>
+                  </Magnetic>
+                </li>
+              )}
             </ul>
           </nav>
 
