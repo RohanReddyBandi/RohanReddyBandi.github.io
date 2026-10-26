@@ -35,6 +35,8 @@ Every push to `main` builds the site and publishes `dist/` to GitHub Pages throu
 
 One-time setup (already done for this repo): **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
+Still to fill in (photo, screenshots, resume, email and so on): see [CHECKLIST.md](CHECKLIST.md).
+
 ## Where things live
 
 | Path | What |
