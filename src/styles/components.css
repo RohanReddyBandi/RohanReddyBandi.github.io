@@ -212,108 +212,35 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Custom cursor (only with html.has-cursor; see Cursor.tsx)           */
+/* Cursor tag (see CursorTag.tsx): the system cursor stays             */
 /* ------------------------------------------------------------------ */
 
-.cursor {
-  display: none;
-}
-
-.has-cursor .cursor {
-  display: block;
-}
-
-.has-cursor,
-.has-cursor * {
-  cursor: none !important;
-}
-
-.cursor__dot,
-.cursor__ring {
+.cursor-tag {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 95;
-  translate: -50% -50%;
-  border-radius: 50%;
+  padding: 5px 8px;
+  border-radius: 2px;
+  background: var(--fg);
+  color: var(--bg);
+  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  will-change: transform;
-}
-
-[data-cursor-visible] .cursor__dot,
-[data-cursor-visible] .cursor__ring {
-  opacity: 1;
-}
-
-.cursor__dot {
-  width: 6px;
-  height: 6px;
-  background: var(--accent);
-  transition: opacity 0.3s;
-}
-
-.cursor__ring {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--accent);
+  scale: 0.85;
+  transform-origin: 0 0;
   transition:
-    width 0.45s var(--ease-out),
-    height 0.45s var(--ease-out),
-    background-color 0.3s,
-    opacity 0.3s;
+    opacity 0.2s,
+    scale 0.25s var(--ease-out);
 }
 
-[data-cursor-mode="link"] .cursor__ring {
-  width: 58px;
-  height: 58px;
-}
-
-/* VIEW / SOON: a filled disc with the word in it */
-[data-cursor-mode="view"] .cursor__ring,
-[data-cursor-mode="soon"] .cursor__ring {
-  width: 88px;
-  height: 88px;
-  background: var(--accent);
-}
-
-[data-cursor-mode="soon"] .cursor__dot {
-  opacity: 0;
-}
-
-[data-cursor-mode="soon"] .cursor__label {
+.cursor-tag.is-shown {
   opacity: 1;
+  scale: 1;
 }
 
-/* DRAG: a hollow ring (the orb stays visible) with a tag beside it */
-[data-cursor-mode="drag"] .cursor__ring,
-[data-dragging] .cursor__ring {
-  width: 54px;
-  height: 54px;
-}
-
-[data-cursor-mode="view"] .cursor__dot {
-  opacity: 0;
-}
-
-.cursor__label {
-  opacity: 0;
-  color: var(--bg);
-  transition: opacity 0.2s;
-}
-
-[data-cursor-mode="view"] .cursor__label {
-  opacity: 1;
-}
-
-[data-cursor-mode="drag"] .cursor__label,
-[data-dragging] .cursor__label {
-  position: absolute;
-  top: 100%;
-  left: 100%;
-  padding: 2px 5px;
-  background: var(--accent);
-  opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+  .cursor-tag {
+    transition: none;
+  }
 }

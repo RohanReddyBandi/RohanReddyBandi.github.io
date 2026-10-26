@@ -11,32 +11,50 @@ type Project = (typeof site.work)[number]
 // else each card shows its preview inline.
 const FLOATING = '(hover: hover) and (pointer: fine) and (min-width: 48rem)'
 
-/** [SCREENSHOT] placeholder until a real image goes in src/assets/work/ */
+// Screenshots: src/assets/work/<shot>-1600.webp and <shot>-800.webp (16:10).
+// Drop a pair in and the project picks it up; without one it shows a placeholder.
+const shots = import.meta.glob<string>('../assets/work/*.webp', { eager: true, import: 'default' })
+
 function Shot({ project }: { project: Project }) {
+  const large = shots[`../assets/work/${project.shot}-1600.webp`]
+  const small = shots[`../assets/work/${project.shot}-800.webp`] ?? large
+  if (!large) {
+    return (
+      <div className="shot">
+        <span className="label">[Screenshot] {project.title}</span>
+      </div>
+    )
+  }
+  // Decorative: every Shot sits inside an aria-hidden wrapper
   return (
     <div className="shot">
-      <span className="label">[Screenshot] {project.title}</span>
+      <img
+        className="shot__img"
+        src={small}
+        srcSet={`${small} 800w, ${large} 1600w`}
+        sizes="(min-width: 64rem) 28rem, (min-width: 48rem) 42vw, 100vw"
+        width={1600}
+        height={1000}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   )
 }
 
 function Row({ project, index }: { project: Project; index: number }) {
-  const linked = Boolean(project.href)
   return (
-    <li className="work-row" data-index={index} data-cursor={linked ? 'view' : 'soon'}>
+    <li className="work-row" data-index={index} data-cursor="open">
       <div className="work-row__media" aria-hidden="true">
         <Shot project={project} />
       </div>
 
       <h3 className="work-row__title">
-        {linked ? (
-          <a className="work-row__link" href={project.href} target="_blank" rel="noopener">
-            {project.title}
-            <span className="sr-only"> ({project.linkLabel}, opens in a new tab)</span>
-          </a>
-        ) : (
-          project.title
-        )}
+        <a className="work-row__link" href={project.href} target="_blank" rel="noopener">
+          {project.title}
+          <span className="sr-only"> ({project.linkLabel}, opens in a new tab)</span>
+        </a>
       </h3>
 
       <div className="work-row__meta">
@@ -52,19 +70,10 @@ function Row({ project, index }: { project: Project; index: number }) {
       </div>
 
       <div className="work-row__end">
-        {project.inProgress ? (
-          <span className="work-row__status label">
-            <span className="live-dot" aria-hidden="true" />
-            In progress
-          </span>
-        ) : (
-          <span className="label text-muted">{project.year}</span>
-        )}
-        {linked && (
-          <span className="work-row__arrow" aria-hidden="true">
-            ↗
-          </span>
-        )}
+        <span className="label text-muted">{project.year}</span>
+        <span className="work-row__arrow" aria-hidden="true">
+          ↗
+        </span>
       </div>
     </li>
   )

@@ -117,7 +117,7 @@ export default function Contact() {
         <ul ref={sheet} className="contact__sheet col-span-full md:col-span-8 md:col-start-5">
           <li className="contact-row">
             <span className="contact-row__label label">Email</span>
-            <button type="button" className="contact-row__value contact-row__copy" onClick={copyEmail}>
+            <button type="button" className="contact-row__value contact-row__copy" onClick={copyEmail} data-cursor="copy">
               {site.email}
               <span className="contact-row__action label" aria-hidden="true">
                 Copy
@@ -127,7 +127,7 @@ export default function Contact() {
           </li>
           <li className="contact-row">
             <span className="contact-row__label label">GitHub</span>
-            <a className="contact-row__value" href={site.links.github} target="_blank" rel="noopener">
+            <a className="contact-row__value" href={site.links.github} target="_blank" rel="noopener" data-cursor="open">
               {site.links.github.replace('https://github.com/', '')}
               <span className="contact-row__action" aria-hidden="true">
                 ↗
@@ -138,7 +138,7 @@ export default function Contact() {
           <li className="contact-row">
             <span className="contact-row__label label">LinkedIn</span>
             {isUrl(site.links.linkedin) ? (
-              <a className="contact-row__value" href={site.links.linkedin} target="_blank" rel="noopener">
+              <a className="contact-row__value" href={site.links.linkedin} target="_blank" rel="noopener" data-cursor="open">
                 {site.links.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, '').replace(/\/$/, '')}
                 <span className="contact-row__action" aria-hidden="true">
                   ↗

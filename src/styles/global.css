@@ -41,7 +41,7 @@
   }
 }
 
-/* Small uppercase mono used for labels, captions, tickers */
+/* Small uppercase mono used for labels and captions */
 @utility label {
   font-family: var(--font-mono);
   font-size: var(--text-label);

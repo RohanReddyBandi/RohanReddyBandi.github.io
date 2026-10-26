@@ -7,49 +7,47 @@
   clip-path: inset(0 0 0% 0);
 }
 
-/* Corners: ticker top-left, skip hint top-right, label and counter at the bottom */
+/* Skip hint top-right, initials in the middle, name and counter at the bottom */
 .intro__inner {
   height: 100%;
   grid-template-rows: auto 1fr auto;
   padding-block: 1.25rem clamp(1.25rem, 4.5svh, 3rem);
 }
 
-.intro__ticker {
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.intro__candle {
+.intro__mark {
+  display: flex;
+  flex-direction: column;
   grid-column: 1 / -1;
   grid-row: 2;
+  gap: 0.6rem;
   place-self: center;
-  width: auto;
-  height: min(34svh, 300px);
-  overflow: visible;
-  filter: drop-shadow(0 0 18px var(--accent));
 }
 
-/* Dash in pathLength units (0..1) so the wick can draw itself top to bottom.
-   (No non-scaling-stroke: it breaks pathLength-based dashes in Chrome.) */
-.intro__wick {
-  stroke: var(--accent);
-  stroke-width: 1;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
+.intro__mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.06em;
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 20vw, 16rem);
+  font-weight: 600;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
 }
 
-.intro__body {
-  fill: var(--accent);
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
+.intro__letter {
+  display: inline-block;
+}
+
+.intro__rule {
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
 }
 
 .intro__count {
   justify-self: end;
   font-family: var(--font-display);
-  font-size: clamp(4.5rem, 16vw, 15rem);
+  font-size: clamp(2.75rem, 8vw, 7rem);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 0.8;

@@ -10,8 +10,9 @@ const WIPE_FOR = 0.6 // s
 const FONT_WAIT = 1100 // ms: longest we'll hold the wipe for fonts
 
 /**
- * "Opening bell": one candle draws itself while a counter runs to 100, then
- * the overlay lifts and the hero makes its entrance underneath. About 1.5s.
+ * The initials rise out of a mask and a line draws under them while a
+ * counter runs to 100, then the overlay lifts and the hero makes its entrance
+ * underneath. About 1.5s.
  * Any click, tap or key fast-forwards it. Once per session; never with
  * reduced motion.
  */
@@ -41,8 +42,8 @@ export default function Intro() {
             count.current!.textContent = String(Math.round(counter.v)).padStart(3, '0')
           },
         })
-        .fromTo('.intro__wick', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.5, ease: 'power2.inOut' }, 0.05)
-        .fromTo('.intro__body', { scaleY: 0 }, { scaleY: 1, duration: 0.65, ease: 'expo.out' }, 0.25)
+        .fromTo('.intro__letter', { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: 'expo.out', stagger: 0.07 }, 0.05)
+        .fromTo('.intro__rule', { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: 'expo.inOut' }, 0.25)
         .fromTo('.intro__chrome', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, stagger: 0.05 }, 0)
         // Hold here if the fonts somehow aren't in yet
         .addPause(WIPE_AT, () => {
@@ -77,17 +78,24 @@ export default function Intro() {
   return (
     <div ref={root} className="intro" aria-hidden="true">
       <div className="intro__inner site-grid">
-        <span className="intro__chrome intro__ticker col-span-2">{site.initials}</span>
         <span className="intro__chrome label col-span-2 col-start-3 justify-self-end text-muted md:col-span-4 md:col-start-9">
           {finePointer.matches ? 'Press any key to skip' : 'Tap to skip'}
         </span>
 
-        <svg className="intro__candle" viewBox="0 0 40 200" aria-hidden="true">
-          <line className="intro__wick" x1="20" y1="4" x2="20" y2="196" pathLength="1" />
-          <rect className="intro__body" x="7" y="52" width="26" height="104" />
-        </svg>
+        <div className="intro__mark">
+          <span className="intro__mask">
+            {[...site.initials].map((ch, i) => (
+              <span key={i} className="intro__letter">
+                {ch}
+              </span>
+            ))}
+          </span>
+          <span className="intro__rule" />
+        </div>
 
-        <span className="intro__chrome label col-span-2 self-end text-muted">Opening bell</span>
+        <span className="intro__chrome label col-span-2 self-end text-muted">
+          {site.name.first} {site.name.last}
+        </span>
         <span ref={count} className="intro__count col-span-2 col-start-3 md:col-span-6 md:col-start-7">
           000
         </span>

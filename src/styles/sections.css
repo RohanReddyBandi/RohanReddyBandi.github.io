@@ -152,13 +152,6 @@
   margin-top: 1.5rem;
 }
 
-.work-row__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--fg);
-}
-
 .work-row__arrow {
   font-size: 1.75rem;
   line-height: 1;
@@ -282,7 +275,16 @@
   height: calc(100% / var(--slides));
 }
 
-/* [SCREENSHOT] placeholder */
+.shot__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Frame, and the [SCREENSHOT] placeholder when there's no image */
 .shot {
   position: absolute;
   inset: 0;
@@ -299,267 +301,85 @@
 /* Experience                                                          */
 /* ------------------------------------------------------------------ */
 
-/* Default (phones, reduced motion): a vertical list */
-.xp {
-  padding-block: clamp(6rem, 12vw, 11rem);
-}
-
-.xp__track {
+.xp-list {
   margin-top: clamp(3rem, 6vw, 5rem);
-}
-
-.xp-panel {
-  display: grid;
-  gap: 1.25rem;
-  padding: 2rem var(--gutter);
-  border-top: 1px solid var(--line);
-}
-
-.xp-panel:last-child {
   border-bottom: 1px solid var(--line);
 }
 
-.xp-panel__caption {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--muted);
+.xp-entry {
+  border-top: 1px solid var(--line);
 }
 
-.xp-panel__title {
+.xp-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: 1rem;
+  padding: 2rem var(--gutter);
+}
+
+.xp-row__title {
+  grid-column: 1 / -1;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 1rem + 4.4vw, 3.75rem);
+  font-size: clamp(2rem, 1.2rem + 3.6vw, 5.5rem);
   font-weight: 600;
-  line-height: 0.92;
+  line-height: 0.9;
   letter-spacing: -0.02em;
   text-transform: uppercase;
   text-wrap: balance;
 }
 
-.xp-panel__line {
-  max-width: 34ch;
-  margin-top: 1rem;
+.xp-row__meta {
+  grid-column: 1 / -1;
+}
+
+.xp-row__line {
+  max-width: 40ch;
+  margin-top: 0.75rem;
   color: var(--muted);
   font-size: 1.1875rem;
   line-height: 1.45;
 }
 
-.xp__progress {
-  display: none;
+/* A nested entry: smaller, indented, hung off its parent with an elbow */
+.xp-row.is-nested {
+  padding-top: 0;
 }
 
-/* Wide screens with motion: the pinned horizontal reel */
-@media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
-  .xp {
-    display: flex;
-    flex-direction: column;
-    height: 100svh;
-    min-height: 560px;
-    padding-block: clamp(5.5rem, 12svh, 8rem) 0;
-    overflow: hidden;
-  }
-
-  .xp__viewport {
-    flex: 1;
-    min-height: 0;
-    margin-top: clamp(1.5rem, 4svh, 3rem);
-  }
-
-  .xp__track {
-    display: flex;
-    width: max-content;
-    height: 100%;
-    margin: 0;
-  }
-
-  .xp-panel {
-    display: flex;
-    flex: none;
-    flex-direction: column;
-    justify-content: space-between;
-    /* most of the screen on tablets, two-thirds of it on desktop */
-    width: clamp(28rem, 84vw, 54rem);
-    height: 100%;
-    padding: clamp(1.25rem, 3svh, 2.5rem) var(--gutter);
-    border: 0;
-    border-left: 1px solid var(--line);
-    container-type: inline-size;
-  }
-
-  @media (width >= 64rem) {
-    .xp-panel {
-      width: clamp(28rem, 66vw, 72rem);
-    }
-  }
-
-  .xp-panel:first-child {
-    border-left: 0;
-  }
-
-  .xp-panel:last-child {
-    border-bottom: 0;
-  }
-
-  /* Sized off the panel's width so "CARNEGIE MELLON" fits on one line */
-  .xp-panel__title {
-    max-width: 16ch;
-    font-size: min(8.4cqi, 8rem);
-    line-height: 0.88;
-  }
-
-  .xp-panel__line {
-    margin-top: clamp(1.25rem, 3svh, 2rem);
-    padding-top: clamp(1.25rem, 3svh, 2rem);
-    border-top: 1px solid var(--line);
-    font-size: var(--text-lead);
-    line-height: var(--text-lead--line-height);
-  }
-
-  /* "01 / 04" plus a hairline that fills as the reel moves */
-  .xp__progress {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    padding: clamp(1rem, 3svh, 2rem) var(--gutter) clamp(1.25rem, 4svh, 2.5rem);
-  }
-
-  .xp__bar {
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-  }
-
-  .xp__fill {
-    display: block;
-    height: 100%;
-    background: var(--accent);
-    transform-origin: left;
-    scale: 0 1;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Off the clock                                                       */
-/* ------------------------------------------------------------------ */
-
-.otc__intro {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  align-items: end;
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-}
-
-.otc__swipe {
-  margin-top: 1rem;
-  color: var(--muted);
-  font-family: var(--font-mono);
-}
-
-/* Phones and tablets: a swipeable strip that snaps tile by tile */
-.otc__strip {
-  display: flex;
-  margin-top: clamp(2rem, 4vw, 3rem);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--gutter);
-  scrollbar-width: none;
-  border-block: 1px solid var(--line);
-}
-
-.otc__strip::-webkit-scrollbar {
-  display: none;
-}
-
-.otc-tile {
+.xp-row.is-nested .xp-row__title {
   position: relative;
-  display: flex;
-  flex: 0 0 min(76vw, 22rem);
-  flex-direction: column;
-  min-height: clamp(19rem, 26vw, 25rem);
-  padding: clamp(1.5rem, 2.2vw, 2.25rem) var(--gutter);
-  border-left: 1px solid var(--line);
-  overflow: hidden;
-  scroll-snap-align: start;
-  container-type: inline-size;
-  transition: background-color 0.45s var(--ease-out);
+  padding-left: 1.4em;
+  font-size: clamp(1.5rem, 1rem + 2vw, 3rem);
 }
 
-.otc-tile:first-child {
-  border-left: 0;
+.xp-row.is-nested .xp-row__title::before {
+  content: "";
+  position: absolute;
+  top: -0.15em;
+  left: 0.3em;
+  width: 0.75em;
+  height: 0.6em;
+  border-bottom: 1px solid var(--muted);
+  border-left: 1px solid var(--muted);
 }
 
-.otc-tile__icon {
-  width: min(100%, 9.5rem);
-  height: auto;
-  overflow: visible;
-  color: var(--accent);
-}
-
-.otc-dim {
-  opacity: 0.35;
-}
-
-.otc-wheel {
-  fill: var(--bg);
-}
-
-/* The anime burst only shows while it plays */
-.otc-tile .burst {
-  opacity: 0;
-}
-
-/* Sized off the tile so "FRAGRANCE" always clears the edge */
-.otc-tile__name {
-  margin-top: auto;
-  padding-top: 2.5rem;
-  font-family: var(--font-display);
-  font-size: min(2.375rem, 12.5cqi);
-  font-weight: 600;
-  line-height: 0.95;
-  text-transform: uppercase;
-  transition: color 0.35s;
-}
-
-/* Two lines reserved so the titles line up across the row */
-.otc-tile__line {
-  min-height: 2lh;
-  margin-top: 0.75rem;
-  max-width: 24ch;
-}
-
-.otc-tile__detail {
-  margin-top: 1rem;
-  color: var(--muted);
-}
-
-/* Desktop: all five side by side */
 @media (width >= 64rem) {
-  .otc__swipe {
-    display: none;
+  .xp-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
   }
 
-  .otc__strip {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    overflow: visible;
+  .xp-row__title {
+    grid-column: 1 / span 7;
   }
 
-  .otc-tile {
-    padding-inline: clamp(1.25rem, 1.8vw, 2rem);
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .otc-tile:hover {
-    background: var(--bg-raised);
+  .xp-row__meta {
+    grid-column: 8 / span 5;
+    padding-top: 0.6rem;
   }
 
-  .otc-tile:hover .otc-tile__name {
-    color: var(--accent);
+  .xp-row.is-nested .xp-row__meta {
+    padding-top: 0.35rem;
   }
 }
 
@@ -768,7 +588,7 @@ a.btn:focus-visible::before {
 }
 
 /* ------------------------------------------------------------------ */
-/* 404: Market closed                                                  */
+/* 404                                                                 */
 /* ------------------------------------------------------------------ */
 
 .nf {
@@ -783,32 +603,21 @@ a.btn:focus-visible::before {
   position: relative;
 }
 
-.nf__chart {
+/* A huge outlined 404 sitting behind everything */
+.nf__ghost {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  right: -0.06em;
+  translate: 0 -50%;
+  color: transparent;
+  font-family: var(--font-display);
+  font-size: min(58vw, 46rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+  -webkit-text-stroke: 1px var(--line);
   pointer-events: none;
-}
-
-/* The monitor dot at the end of the flatline */
-.nf__dot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 8px;
-  height: 8px;
-  margin: -4px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent);
-  animation: nf-blink 1.2s steps(2, jump-none) infinite;
-}
-
-@keyframes nf-blink {
-  50% {
-    opacity: 0.15;
-  }
+  user-select: none;
 }
 
 .nf__body {
@@ -820,104 +629,11 @@ a.btn:focus-visible::before {
 .nf__title {
   margin-top: 1rem;
   font-family: var(--font-display);
-  font-size: clamp(4rem, 14vw, 16rem);
+  font-size: clamp(4rem, 13vw, 15rem);
   font-weight: 600;
   line-height: 0.84;
   letter-spacing: -0.035em;
   text-transform: uppercase;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nf__dot {
-    animation: none;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Ticker                                                              */
-/* ------------------------------------------------------------------ */
-
-.ticker {
-  display: flex;
-  align-items: stretch;
-  overflow: hidden;
-  border-block: 1px solid var(--line);
-}
-
-/* The pinned "Live" box on the left, like a news-ticker label */
-.ticker__live {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 0.65rem;
-  padding-inline: var(--gutter) clamp(1rem, 2vw, 1.75rem);
-  border-right: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--fg);
-  transition: color 0.3s;
-}
-
-button.ticker__live:hover {
-  color: var(--accent);
-}
-
-.ticker__paused {
-  width: 6px;
-  height: 8px;
-  border-inline: 2px solid currentColor;
-}
-
-.ticker__viewport {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  min-width: 0;
-  overflow: hidden;
-  padding-block: clamp(1.1rem, 2.4vw, 1.75rem);
-}
-
-.ticker__track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
-.ticker__group {
-  display: flex;
-  flex: none;
-  align-items: center;
-}
-
-.ticker__item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  font-family: var(--font-mono);
-  font-size: clamp(1.25rem, 0.9rem + 1.8vw, 2.5rem);
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.ticker__arrow {
-  width: 0.55em;
-  height: auto;
-}
-
-.ticker__arrow.is-up {
-  fill: var(--accent);
-}
-
-.ticker__arrow.is-down {
-  fill: var(--muted);
-}
-
-.ticker__sep {
-  padding-inline: 0.8em;
-  color: var(--muted);
 }
 
 /* ------------------------------------------------------------------ */
