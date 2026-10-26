@@ -5,9 +5,11 @@ export const site = {
   url: 'https://rohanreddybandi.github.io/',
   name: { first: 'Rohan Reddy', last: 'Bandi' },
   initials: 'RRB',
+  // The hero subheadline: the lead stays, the second line follows the market
   tagline: {
-    bull: 'CS @ Purdue. Building things people actually use.',
-    bear: 'CS @ Purdue. Everything is fine.',
+    lead: 'CS @ Purdue.',
+    bull: 'Building things people actually use.',
+    bear: 'Everything is fine.',
   },
   email: '[EMAIL]',
   links: {

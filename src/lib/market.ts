@@ -72,6 +72,23 @@ export function generateSeries(): Candle[] {
   return candles
 }
 
+/**
+ * One calendar day per base candle (it trades 24/7), ending today, so the
+ * live candle is always "today".
+ */
+export function marketDays(count: number, end = new Date()): Date[] {
+  return Array.from(
+    { length: count },
+    (_, i) => new Date(end.getFullYear(), end.getMonth(), end.getDate() - (count - 1 - i)),
+  )
+}
+
+/** "MAR 14 '25" */
+export function tickLabel(date: Date) {
+  const md = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()
+  return `${md} '${String(date.getFullYear()).slice(2)}`
+}
+
 /** Merge every `factor` candles into one, like zooming out a timeframe. */
 export function aggregate(candles: Candle[], factor: number): Candle[] {
   if (factor <= 1) return candles

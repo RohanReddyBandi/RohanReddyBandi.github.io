@@ -4,11 +4,12 @@ import { aggregate, BASE_COUNT, gaussian, type Candle } from '../lib/market'
 // Draws the hero's candlestick chart. The expensive part (every candle with
 // its glow) is drawn once into an offscreen layer in white, then tinted with
 // the accent. Each frame only composites that layer and draws the few moving
-// bits: tick flashes and the live last candle.
+// bits: the spotlight around the handle, tick flashes, and the live last candle.
 
 const MAX_DPR = 2
 const FONT = '400 10px "JetBrains Mono", ui-monospace, monospace'
 const CANDLE_ALPHA = 0.3
+const SPOTLIGHT_ALPHA = 0.6
 const LIVE_ALPHA = 0.75
 const FLASH_MS = 900
 const FLASHES_PER_SEC = 3.5
@@ -30,13 +31,17 @@ type Layout = {
 
 export class ChartRenderer {
   candles: Candle[] = []
+  /** x (CSS px) of the drag handle; candles around it are drawn brighter */
+  focusX: number | null = null
   private canvas: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
   private layout: Layout | null = null
   private base: Candle[]
+  private factor = 1
   private glowLayer = document.createElement('canvas') // white candles + glow
   private tinted = document.createElement('canvas') // glowLayer in the accent
   private gridLayer = document.createElement('canvas') // price grid + labels
+  private spot = document.createElement('canvas') // scratch for the spotlight
   private tintKey = ''
   private flashes: { i: number; t0: number }[] = []
   private live = { c: 0, h: 0, l: 0, target: 0, nextTick: 0 }
@@ -59,7 +64,8 @@ export class ChartRenderer {
   resize(w: number, h: number) {
     if (w === 0 || h === 0) return
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
-    this.candles = aggregate(this.base, this.pickFactor(w))
+    this.factor = this.pickFactor(w)
+    this.candles = aggregate(this.base, this.factor)
 
     // Price labels end on the site gutter, same as --gutter in tokens.css
     const gutter = Math.min(44, Math.max(16, w * 0.032))
@@ -100,13 +106,53 @@ export class ChartRenderer {
     if (this.layout) this.buildGridLayer()
   }
 
-  x(i: number) {
-    return (i + 0.5) * this.layout!.pitch
+  get ready() {
+    return this.layout !== null
+  }
+
+  get count() {
+    return this.candles.length
+  }
+
+  /** Price area, CSS px */
+  get band() {
+    const { top, bottom, plotRight } = this.layout!
+    return { top, bottom, right: plotRight }
+  }
+
+  /** x for a (fractional) candle position, CSS px */
+  x(pos: number) {
+    return (pos + 0.5) * this.layout!.pitch
+  }
+
+  /** Inverse of x() */
+  posAt(x: number) {
+    return x / this.layout!.pitch - 0.5
   }
 
   y(price: number) {
     const { top, bottom, min, max } = this.layout!
     return bottom - ((price - min) / (max - min)) * (bottom - top)
+  }
+
+  /** Close price at a fractional position, interpolated between candles */
+  priceAt(pos: number) {
+    const last = this.candles.length - 1
+    const p = Math.min(last, Math.max(0, pos))
+    const i = Math.floor(p)
+    const a = this.closeAt(i)
+    const b = this.closeAt(Math.min(last, i + 1))
+    return a + (b - a) * (p - i)
+  }
+
+  /** Index into the un-merged daily series for a candle position */
+  baseIndexAt(pos: number) {
+    const i = Math.min(this.candles.length - 1, Math.max(0, Math.round(pos)))
+    return Math.min(BASE_COUNT - 1, (i + 1) * this.factor - 1)
+  }
+
+  private closeAt(i: number) {
+    return i === this.candles.length - 1 ? this.live.c : this.candles[i].c
   }
 
   /** One animated frame. `now` is in ms. */
@@ -161,6 +207,7 @@ export class ChartRenderer {
     ctx.globalAlpha = CANDLE_ALPHA
     ctx.drawImage(this.tinted, 0, 0)
     ctx.globalAlpha = 1
+    if (this.focusX !== null) this.drawSpotlight(ctx, this.focusX)
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.shadowColor = accentRgba(0.8)
@@ -178,6 +225,39 @@ export class ChartRenderer {
     ctx.shadowBlur = 0
 
     this.drawLastPrice(ctx, live.c, h)
+  }
+
+  // A brighter copy of the candles around the handle, faded out at both
+  // sides with a gradient mask. Works in device pixels.
+  private drawSpotlight(ctx: CanvasRenderingContext2D, focusX: number) {
+    const { w, dpr } = this.layout!
+    const r = Math.round(Math.max(90, w * 0.08) * dpr)
+    const H = this.canvas.height
+    const left = Math.round(focusX * dpr) - r
+    const srcX = Math.max(0, left)
+    const srcW = Math.min(this.canvas.width, left + 2 * r) - srcX
+    if (srcW <= 0) return
+
+    const s = this.spot
+    if (s.width !== 2 * r || s.height !== H) {
+      s.width = 2 * r
+      s.height = H
+    }
+    const g = s.getContext('2d')!
+    g.globalCompositeOperation = 'source-over'
+    g.clearRect(0, 0, s.width, s.height)
+    g.drawImage(this.tinted, srcX, 0, srcW, H, srcX - left, 0, srcW, H)
+    g.globalCompositeOperation = 'destination-in'
+    const mask = g.createLinearGradient(0, 0, 2 * r, 0)
+    mask.addColorStop(0, 'rgba(0, 0, 0, 0)')
+    mask.addColorStop(0.5, 'rgba(0, 0, 0, 1)')
+    mask.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    g.fillStyle = mask
+    g.fillRect(0, 0, s.width, s.height)
+
+    ctx.globalAlpha = SPOTLIGHT_ALPHA
+    ctx.drawImage(s, left, 0)
+    ctx.globalAlpha = 1
   }
 
   // Dashed line at the live price, with a tag on the axis like a real chart
