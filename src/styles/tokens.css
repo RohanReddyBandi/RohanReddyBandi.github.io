@@ -1,0 +1,58 @@
+/*
+  Design tokens. Only these colors exist: the default Tailwind palette is
+  cleared so nothing off-system sneaks in.
+
+  --accent is the one live color. The hero flips it between --bull and --bear
+  (src/lib/accent.ts tweens it), and everything accent-colored follows.
+*/
+
+:root {
+  --bg: #0b0b0c;
+  --bg-raised: #121214;
+  --fg: #edede8;
+  --muted: #8a8a85;
+  --line: rgb(237 237 232 / 0.12);
+  --bull: #c8ff3d;
+  --bear: #ff3b3b;
+  --accent: var(--bull);
+
+  --gutter: clamp(1rem, 3.2vw, 2.75rem);
+
+  color-scheme: dark;
+}
+
+@theme {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-bull: var(--bull);
+  --color-bear: var(--bear);
+
+  --font-*: initial;
+  --font-display: "Clash Display", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "General Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale */
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.16em;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
+  --text-lead: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
+  --text-lead--line-height: 1.35;
+  --text-title: clamp(2.75rem, 1.5rem + 6vw, 8.5rem);
+  --text-title--line-height: 0.92;
+  --text-title--letter-spacing: -0.02em;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Accent is a raw custom property (not a theme var) so JS can tween it. */
+@theme inline {
+  --color-accent: var(--accent);
+}

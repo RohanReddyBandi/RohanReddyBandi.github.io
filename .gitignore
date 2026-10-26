@@ -1,0 +1,8 @@
+node_modules
+dist
+*.local
+.DS_Store
+
+# Fontshare fonts are fetched at build time (see scripts/fetch-fonts.sh)
+public/fonts/ClashDisplay-*
+public/fonts/GeneralSans-*
