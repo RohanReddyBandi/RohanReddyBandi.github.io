@@ -89,6 +89,18 @@ export const site = {
       line: 'Studying computer science.',
     },
   ],
+  // Off the Clock. Jokes are drafts about the hobby, not claims about you;
+  // the [BRACKETS] want your specifics.
+  offTheClock: {
+    intro: 'Not resume material.',
+    tiles: [
+      { id: 'table-tennis', name: 'Table tennis', line: 'Spin is a personality trait.', detail: '[HOW GOOD, HONESTLY?]' },
+      { id: 'cars', name: 'Cars', line: 'Window shopping, but louder.', detail: 'Dream car: [DREAM CAR]' },
+      { id: 'watches', name: 'Watches', line: 'Telling time is the least interesting thing they do.', detail: 'On the wrist: [WATCH]' },
+      { id: 'fragrance', name: 'Fragrance', line: 'Compliments not guaranteed.', detail: 'Signature: [SCENT]' },
+      { id: 'anime', name: 'Anime', line: 'Subtitles on. Always.', detail: 'All-time: [ANIME]' },
+    ],
+  },
   ticker: [
     { name: 'TRADR', up: true },
     { name: 'Duck Days', up: true },

@@ -4,6 +4,7 @@ import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 import About from './sections/About'
 import Experience from './sections/Experience'
+import OffTheClock from './sections/OffTheClock'
 import Ticker from './sections/Ticker'
 import Work from './sections/Work'
 
@@ -27,7 +28,7 @@ export default function App() {
         <About />
         <Work />
         <Experience />
-        <Shell id="off-the-clock" label="Off the clock" />
+        <OffTheClock />
         <Ticker />
         <Shell id="contact" label="Contact" />
       </main>
