@@ -3,14 +3,17 @@ import Intro from './components/Intro'
 import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 import About from './sections/About'
+import Ticker from './sections/Ticker'
 
-// Sections still waiting on their real build in a later phase
-const sections = [
-  { id: 'work', label: 'Selected work' },
-  { id: 'experience', label: 'Experience' },
-  { id: 'off-the-clock', label: 'Off the clock' },
-  { id: 'contact', label: 'Contact' },
-]
+// Stand-in for a section still waiting on its real build in a later phase
+function Shell({ id, label }: { id: string; label: string }) {
+  return (
+    <section id={id} className="site-grid min-h-[80svh] border-t border-line py-24">
+      <h2 className="col-span-full font-display text-title font-medium uppercase">{label}</h2>
+      <p className="label col-span-full mt-6 text-muted">[Coming soon]</p>
+    </section>
+  )
+}
 
 export default function App() {
   return (
@@ -20,13 +23,11 @@ export default function App() {
       <main>
         <Hero />
         <About />
-
-        {sections.map((s) => (
-          <section key={s.id} id={s.id} className="site-grid min-h-[80svh] border-t border-line py-24">
-            <h2 className="col-span-full font-display text-title font-medium uppercase">{s.label}</h2>
-            <p className="label col-span-full mt-6 text-muted">[Coming soon]</p>
-          </section>
-        ))}
+        <Shell id="work" label="Selected work" />
+        <Shell id="experience" label="Experience" />
+        <Shell id="off-the-clock" label="Off the clock" />
+        <Ticker />
+        <Shell id="contact" label="Contact" />
       </main>
 
       <Intro />

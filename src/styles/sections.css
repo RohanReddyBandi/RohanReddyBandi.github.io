@@ -64,6 +64,93 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Ticker                                                              */
+/* ------------------------------------------------------------------ */
+
+.ticker {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-block: 1px solid var(--line);
+}
+
+/* The pinned "Live" box on the left, like a news-ticker label */
+.ticker__live {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.65rem;
+  padding-inline: var(--gutter) clamp(1rem, 2vw, 1.75rem);
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+  transition: color 0.3s;
+}
+
+button.ticker__live:hover {
+  color: var(--accent);
+}
+
+.ticker__paused {
+  width: 6px;
+  height: 8px;
+  border-inline: 2px solid currentColor;
+}
+
+.ticker__viewport {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  padding-block: clamp(1.1rem, 2.4vw, 1.75rem);
+}
+
+.ticker__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.ticker__group {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-family: var(--font-mono);
+  font-size: clamp(1.25rem, 0.9rem + 1.8vw, 2.5rem);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ticker__arrow {
+  width: 0.55em;
+  height: auto;
+}
+
+.ticker__arrow.is-up {
+  fill: var(--accent);
+}
+
+.ticker__arrow.is-down {
+  fill: var(--muted);
+}
+
+.ticker__sep {
+  padding-inline: 0.8em;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ */
 /* Signature (any SVG dropped into src/assets/signature.svg)           */
 /* ------------------------------------------------------------------ */
 

@@ -27,6 +27,13 @@ export const site = {
       { label: 'Building', value: 'Trackpad Scale, a Mac app that turns the trackpad into a scale' },
     ],
   },
+  ticker: [
+    { name: 'TRADR', up: true },
+    { name: 'Duck Days', up: true },
+    { name: 'Purdue CS', up: true },
+    { name: 'Sleep', up: false },
+    { name: 'Coffee', up: true },
+  ],
   nav: [
     { label: 'Work', href: '#work' },
     { label: 'Experience', href: '#experience' },
