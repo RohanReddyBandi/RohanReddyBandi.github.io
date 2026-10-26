@@ -1,4 +1,166 @@
+/* ------------------------------------------------------------------ */
+/* Layout: chart fills the hero, name sits on the bottom edge.        */
+/* ------------------------------------------------------------------ */
+
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+}
+
+.hero__chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero__foot {
+  position: absolute;
+  inset: auto 0 0;
+  padding-bottom: clamp(1.25rem, 4.5svh, 3rem);
+}
+
+/*
+  The name fills its column: "ROHAN REDDY" measures ~7.03em wide in Clash
+  Display at this tracking, so its size = column width / 7.1. It's also
+  capped by viewport height so short, wide screens keep room for the chart.
+  Change the name, re-measure the ratio. (cqi in --name-size resolves
+  against this container wherever a child uses it.)
+*/
+.hero__stack {
+  --name-size: min(100cqi / 7.1, 25svh);
+  position: relative;
+  grid-column: 1 / -1;
+  container-type: inline-size;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.hero-name__mask {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: var(--name-size);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  /* a little slack so the mask doesn't shave the tops of the caps */
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.hero-name__word,
+.hero-name__letter {
+  display: inline-block;
+}
+
+/* Under the name on phones and tablets; beside "BANDI" on desktop */
+.hero__aside {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gutter);
+  margin-top: 1.5rem;
+}
+
+.hero__tagline {
+  max-width: 28ch;
+  text-wrap: balance;
+}
+
+.hero__mood {
+  display: block;
+  min-height: 2lh;
+}
+
+@media (width >= 48rem) {
+  .hero__mood {
+    min-height: 1lh;
+  }
+}
+
+@media (width >= 64rem) {
+  /* Starts on grid column 7; lifted so the last line's baseline sits on
+     BANDI's (which is ~0.115em of the name size above the line box bottom) */
+  .hero__aside {
+    position: absolute;
+    right: 0;
+    bottom: calc(var(--name-size) * 0.115 - 0.65rem);
+    left: calc(50% + var(--gutter) / 2);
+    margin: 0;
+  }
+}
+
+.reveal-mask {
+  display: block;
+  overflow: hidden;
+}
+
+.reveal-line {
+  display: block;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll cue                                                          */
+/* ------------------------------------------------------------------ */
+
+.scroll-cue {
+  flex-shrink: 0;
+}
+
+.scroll-cue__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+
+.scroll-cue__link:hover {
+  color: var(--fg);
+}
+
+.scroll-cue__track {
+  position: relative;
+  width: 1px;
+  height: 44px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.scroll-cue__bead {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  animation: cue-run 2s var(--ease-in-out) infinite;
+}
+
+@keyframes cue-run {
+  from {
+    translate: 0 -100%;
+  }
+  to {
+    translate: 0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue__bead {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* The drag handle. MarketHero moves these with transforms every frame. */
+/* ------------------------------------------------------------------ */
 
 .market-handle {
   position: absolute;

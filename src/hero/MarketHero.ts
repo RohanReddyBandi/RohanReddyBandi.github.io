@@ -18,6 +18,7 @@ const HINT_KEY = 'market-dragged'
 
 export type HeroElements = {
   canvas: HTMLCanvasElement
+  name: HTMLElement
   handle: HTMLElement
   line: HTMLElement
   hit: HTMLElement
@@ -95,8 +96,18 @@ export class MarketHero {
     return reducedMotion.matches
   }
 
+  // The price band sits between the top bar and the name, so the chart's
+  // story (and the live candle) never hides behind the type. On short
+  // screens it's allowed to overlap the name rather than get squashed.
+  private chartBand(h: number) {
+    const top = Math.max(h * 0.13, 96)
+    const nameTop = this.el.name.getBoundingClientRect().top - this.el.canvas.getBoundingClientRect().top
+    const bottom = Math.max(nameTop - h * 0.04, top + h * 0.34)
+    return { top, bottom }
+  }
+
   private resize(w: number, h: number) {
-    this.chart.resize(w, h)
+    this.chart.resize(w, h, this.chartBand(h))
     if (!this.chart.ready) return
     const n = this.chart.count
     this.physics.setBounds(this.chart.x(0), this.chart.x(n - 1))

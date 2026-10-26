@@ -5,8 +5,32 @@ import Lenis from 'lenis'
 gsap.registerPlugin(ScrollTrigger)
 
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+/** A mouse or trackpad: custom cursor and magnetic effects only make sense here */
+export const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
 
 let lenis: Lenis | null = null
+const scrollListeners = new Set<(y: number) => void>()
+
+/** Subscribe to scroll position, smoothed or native. Returns an unsubscribe. */
+export function onScroll(listener: (y: number) => void) {
+  scrollListeners.add(listener)
+  return () => {
+    scrollListeners.delete(listener)
+  }
+}
+
+window.addEventListener('scroll', () => {
+  if (!lenis) scrollListeners.forEach((l) => l(window.scrollY))
+}, { passive: true })
+
+/** Freeze page scrolling (e.g. under the mobile menu). */
+export function lockScroll(locked: boolean) {
+  if (lenis) {
+    if (locked) lenis.stop()
+    else lenis.start()
+  }
+  document.documentElement.style.overflow = locked ? 'hidden' : ''
+}
 
 /**
  * Lenis smooths the scroll, and GSAP's ticker drives Lenis, so ScrollTrigger
@@ -17,6 +41,7 @@ export function startSmoothScroll() {
   if (lenis || reducedMotion.matches) return
   lenis = new Lenis({ autoRaf: false })
   lenis.on('scroll', ScrollTrigger.update)
+  lenis.on('scroll', (l: Lenis) => scrollListeners.forEach((fn) => fn(l.scroll)))
   gsap.ticker.add((time) => lenis?.raf(time * 1000))
   gsap.ticker.lagSmoothing(0)
   document.addEventListener('click', onAnchorClick)
@@ -34,21 +59,28 @@ export function scrollToTarget(target: HTMLElement | 'top') {
   else target.scrollIntoView()
 }
 
+/**
+ * Go to an in-page section ("#work", "#top"): scroll there, update the URL,
+ * and move keyboard focus so Tab continues from the new section.
+ * Returns false if there's no such section.
+ */
+export function goTo(hash: string) {
+  const target = hash === '#top' ? 'top' : document.getElementById(decodeURIComponent(hash.slice(1)))
+  if (!target) return false
+  scrollToTarget(target)
+  history.pushState(null, '', hash === '#top' ? location.pathname : hash)
+  if (target !== 'top') {
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
+  }
+  return true
+}
+
 // Lenis' own `anchors` option doesn't cancel the browser's jump, so the page
 // flashes to the target before easing. Handle in-page links here instead.
 function onAnchorClick(event: MouseEvent) {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return
   const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="#"]')
   const hash = link?.getAttribute('href')
-  if (!hash) return
-  const target = hash === '#top' ? 'top' : document.getElementById(decodeURIComponent(hash.slice(1)))
-  if (!target) return
-  event.preventDefault()
-  scrollToTarget(target)
-  history.pushState(null, '', hash === '#top' ? location.pathname : hash)
-  // Move keyboard focus with the scroll so Tab continues from the new section.
-  if (target !== 'top') {
-    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
-    target.focus({ preventScroll: true })
-  }
+  if (hash && goTo(hash)) event.preventDefault()
 }

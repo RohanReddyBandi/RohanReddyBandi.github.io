@@ -1,8 +1,9 @@
-import { site } from './content/site'
+import Cursor from './components/Cursor'
+import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 
-// Phase 0 shell: tokens, type, grain and smooth scroll. Each section gets
-// replaced by its real build in later phases.
+// Sections below the hero are still shells; each gets its real build in a
+// later phase.
 const sections = [
   { id: 'about', label: 'About' },
   { id: 'work', label: 'Selected work' },
@@ -14,22 +15,7 @@ const sections = [
 export default function App() {
   return (
     <>
-      <header className="site-grid fixed inset-x-0 top-0 z-50 items-center py-5">
-        <a href="#top" className="label col-span-2 text-fg">
-          {site.initials}
-        </a>
-        <nav aria-label="Primary" className="col-span-2 col-start-3 justify-self-end md:col-span-6 md:col-start-7">
-          <ul className="flex gap-6">
-            {site.nav.map((item) => (
-              <li key={item.href} className="hidden md:block">
-                <a href={item.href} className="label text-muted transition-colors duration-300 hover:text-accent">
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </header>
+      <TopBar />
 
       <main>
         <Hero />
@@ -43,6 +29,7 @@ export default function App() {
       </main>
 
       <div className="grain" aria-hidden="true" />
+      <Cursor />
     </>
   )
 }

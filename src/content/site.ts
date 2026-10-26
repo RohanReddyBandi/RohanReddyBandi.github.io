@@ -11,6 +11,8 @@ export const site = {
     bull: 'Building things people actually use.',
     bear: 'Everything is fine.',
   },
+  // Top bar clock. [CONFIRM: West Lafayette, or somewhere else?]
+  clock: { city: 'West Lafayette', timeZone: 'America/Indiana/Indianapolis' },
   email: '[EMAIL]',
   links: {
     github: 'https://github.com/RohanReddyBandi',

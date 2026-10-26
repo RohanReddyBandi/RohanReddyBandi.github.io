@@ -1,0 +1,236 @@
+/* ------------------------------------------------------------------ */
+/* Top bar                                                             */
+/* ------------------------------------------------------------------ */
+
+.topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition:
+    translate 0.6s var(--ease-out),
+    background-color 0.4s,
+    border-color 0.4s;
+}
+
+.topbar[data-scrolled="true"]:not([data-menu="true"]) {
+  background: var(--bg);
+  border-bottom-color: var(--line);
+}
+
+.topbar[data-hidden="true"] {
+  translate: 0 -100%;
+}
+
+.topbar__logo {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: color 0.3s;
+}
+
+.topbar__logo:hover {
+  color: var(--accent);
+}
+
+/* Pulsing "live" dot next to the clock */
+.live-dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: live-ping 2s var(--ease-out) infinite;
+}
+
+@keyframes live-ping {
+  from {
+    scale: 1;
+    opacity: 0.6;
+  }
+  to {
+    scale: 3;
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Roll link: text slides up to an accent copy                         */
+/* ------------------------------------------------------------------ */
+
+.roll {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  padding-block: 0.5rem;
+}
+
+.roll__text {
+  display: block;
+  transition: translate 0.55s var(--ease-out);
+}
+
+.roll__text + .roll__text {
+  position: absolute;
+  inset: 0.5rem 0;
+  translate: 0 160%;
+  color: var(--accent);
+}
+
+.roll:hover .roll__text,
+.roll:focus-visible .roll__text {
+  translate: 0 -160%;
+}
+
+.roll:hover .roll__text + .roll__text,
+.roll:focus-visible .roll__text + .roll__text {
+  translate: 0 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile menu                                                         */
+/* ------------------------------------------------------------------ */
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  padding-top: 6.5rem;
+  background: var(--bg);
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.menu__item {
+  border-bottom: 1px solid var(--line);
+}
+
+.menu__link {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.9rem 0.6rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 13vw, 4.5rem);
+  font-weight: 600;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.menu__link-inner {
+  display: block;
+}
+
+.menu__link:active {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Custom cursor (only with html.has-cursor; see Cursor.tsx)           */
+/* ------------------------------------------------------------------ */
+
+.cursor {
+  display: none;
+}
+
+.has-cursor .cursor {
+  display: block;
+}
+
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+
+.cursor__dot,
+.cursor__ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 95;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+
+[data-cursor-visible] .cursor__dot,
+[data-cursor-visible] .cursor__ring {
+  opacity: 1;
+}
+
+.cursor__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  transition: opacity 0.3s;
+}
+
+.cursor__ring {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--accent);
+  transition:
+    width 0.45s var(--ease-out),
+    height 0.45s var(--ease-out),
+    background-color 0.3s,
+    opacity 0.3s;
+}
+
+[data-cursor="link"] .cursor__ring {
+  width: 58px;
+  height: 58px;
+}
+
+/* VIEW: a filled disc with the word in it */
+[data-cursor="view"] .cursor__ring {
+  width: 88px;
+  height: 88px;
+  background: var(--accent);
+}
+
+/* DRAG: a hollow ring (the orb stays visible) with a tag beside it */
+[data-cursor="drag"] .cursor__ring,
+[data-dragging] .cursor__ring {
+  width: 54px;
+  height: 54px;
+}
+
+[data-cursor="view"] .cursor__dot {
+  opacity: 0;
+}
+
+.cursor__label {
+  opacity: 0;
+  color: var(--bg);
+  transition: opacity 0.2s;
+}
+
+[data-cursor="view"] .cursor__label {
+  opacity: 1;
+}
+
+[data-cursor="drag"] .cursor__label,
+[data-dragging] .cursor__label {
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  padding: 2px 5px;
+  background: var(--accent);
+  opacity: 1;
+}

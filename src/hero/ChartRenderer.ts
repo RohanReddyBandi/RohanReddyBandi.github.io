@@ -61,7 +61,8 @@ export class ChartRenderer {
     return factors.find((f) => w / (BASE_COUNT / f) >= minPitch) ?? 16
   }
 
-  resize(w: number, h: number) {
+  /** `band` is the vertical span (CSS px) the price range is mapped into. */
+  resize(w: number, h: number, band: { top: number; bottom: number }) {
     if (w === 0 || h === 0) return
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
     this.factor = this.pickFactor(w)
@@ -82,9 +83,8 @@ export class ChartRenderer {
       body: Math.max(2, pitch * 0.58),
       plotRight,
       axisRight,
-      // Price stays in the upper band so the subheadline below sits on clean background
-      top: h * (w < 768 ? 0.16 : 0.13),
-      bottom: h * (w < 768 ? 0.6 : 0.7),
+      top: band.top,
+      bottom: band.bottom,
       min: Math.min(...lows),
       max: Math.max(...highs),
     }

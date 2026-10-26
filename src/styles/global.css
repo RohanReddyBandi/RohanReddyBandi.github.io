@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./fonts.css";
 @import "./tokens.css";
+@import "./components.css";
 
 @layer base {
   html {
@@ -57,26 +58,6 @@
 
   @media (width >= 48rem) {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-}
-
-/*
-  The hero name fills its column exactly. "ROHAN REDDY" in Clash Display at
-  -0.035em tracking measures 7.03em wide, so its font-size is the column
-  width / 7.1 (a hair of slack). Change the name, re-measure the ratio.
-*/
-@utility hero-name {
-  container-type: inline-size;
-  font-family: var(--font-display);
-  font-weight: 600;
-  text-transform: uppercase;
-
-  & > * {
-    display: block;
-    white-space: nowrap;
-    font-size: min(100cqi / 7.1, 24rem);
-    line-height: 0.84;
-    letter-spacing: -0.035em;
   }
 }
 
