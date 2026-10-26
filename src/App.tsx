@@ -2,11 +2,10 @@ import Cursor from './components/Cursor'
 import Intro from './components/Intro'
 import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
+import About from './sections/About'
 
-// Sections below the hero are still shells; each gets its real build in a
-// later phase.
+// Sections still waiting on their real build in a later phase
 const sections = [
-  { id: 'about', label: 'About' },
   { id: 'work', label: 'Selected work' },
   { id: 'experience', label: 'Experience' },
   { id: 'off-the-clock', label: 'Off the clock' },
@@ -20,6 +19,7 @@ export default function App() {
 
       <main>
         <Hero />
+        <About />
 
         {sections.map((s) => (
           <section key={s.id} id={s.id} className="site-grid min-h-[80svh] border-t border-line py-24">

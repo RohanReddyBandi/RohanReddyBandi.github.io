@@ -19,6 +19,14 @@ export const site = {
     linkedin: '[LINKEDIN URL]',
     resume: '/resume.pdf',
   },
+  about: {
+    // [ABOUT LINE]: one or two casual sentences, in your words
+    line: '[ABOUT LINE]',
+    facts: [
+      { label: 'Studying', value: 'B.S. Computer Science, Purdue University' },
+      { label: 'Building', value: 'Trackpad Scale, a Mac app that turns the trackpad into a scale' },
+    ],
+  },
   nav: [
     { label: 'Work', href: '#work' },
     { label: 'Experience', href: '#experience' },

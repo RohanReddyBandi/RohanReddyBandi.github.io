@@ -1,0 +1,153 @@
+/* ------------------------------------------------------------------ */
+/* Shared section chrome                                               */
+/* ------------------------------------------------------------------ */
+
+.section {
+  padding-block: clamp(6rem, 12vw, 11rem);
+}
+
+.section-head {
+  align-items: center;
+  row-gap: 1rem;
+}
+
+.section-head__rule {
+  height: 1px;
+  background: var(--line);
+}
+
+/* ------------------------------------------------------------------ */
+/* About                                                               */
+/* ------------------------------------------------------------------ */
+
+.about__statement {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.1rem + 3.7vw, 4.75rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.about__signature {
+  width: min(100%, 26rem);
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  color: var(--accent);
+}
+
+.about__facts {
+  max-width: 46rem;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  border-top: 1px solid var(--line);
+}
+
+.about__fact {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding-block: 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (width >= 48rem) {
+  .about__fact {
+    grid-template-columns: 8rem 1fr;
+  }
+}
+
+/* Never taller than ~80% of the screen (matters on short, wide displays) */
+.about__photo {
+  width: 100%;
+  max-width: 64svh;
+  justify-self: end;
+}
+
+/* ------------------------------------------------------------------ */
+/* Signature (any SVG dropped into src/assets/signature.svg)           */
+/* ------------------------------------------------------------------ */
+
+.signature svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.signature [stroke]:not([stroke="none"]) {
+  stroke: currentColor;
+}
+
+.signature [fill]:not([fill="none"]) {
+  fill: currentColor;
+}
+
+/* ------------------------------------------------------------------ */
+/* Photo frame with the hover lens                                     */
+/* ------------------------------------------------------------------ */
+
+.photo {
+  --mx: 50%;
+  --my: 50%;
+  --lens: 0px;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--bg-raised);
+}
+
+.photo__layer,
+.photo__drift,
+.photo__magnify {
+  position: absolute;
+  inset: 0;
+}
+
+/* Overscan so the parallax never shows an edge */
+.photo__drift {
+  inset: -6% 0;
+}
+
+.photo__base {
+  filter: grayscale(1) brightness(0.82);
+}
+
+.photo__lens {
+  -webkit-mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 97%, transparent 100%);
+  mask-image: radial-gradient(circle var(--lens) at var(--mx) var(--my), #000 97%, transparent 100%);
+}
+
+.photo__magnify {
+  scale: 1.12;
+  transform-origin: var(--mx) var(--my);
+}
+
+.photo__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: repeating-linear-gradient(135deg, transparent 0 13px, var(--line) 13px 14px);
+}
+
+/* Opaque, so the base doesn't show through the lens */
+.photo__lens .photo__placeholder {
+  color: var(--accent);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 13px, var(--accent) 13px 14px),
+    var(--bg-raised);
+}
+
+/* No hover on touch screens: just show the photo in color */
+@media (hover: none) {
+  .photo__base {
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo:hover .photo__base {
+    filter: none;
+  }
+}
