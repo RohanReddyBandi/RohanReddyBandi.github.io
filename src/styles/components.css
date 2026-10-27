@@ -212,7 +212,9 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Glitch cursor (see Cursor.tsx; only with html.has-cursor)           */
+/* Glitch cursor (see Cursor.tsx). No visible shape: only the page     */
+/* bugging out under the pointer, a fading trail, a 4px point marker   */
+/* and an action tag. Safari/Firefox (.cursor-lite) get the tag only.  */
 /* ------------------------------------------------------------------ */
 
 .has-cursor,
@@ -220,116 +222,71 @@
   cursor: none !important;
 }
 
-/* Size of the visible stepped shape; tweened between modes */
+/* Size of the (invisible) glitch region; tweened between modes */
 @property --shape {
   syntax: "<length>";
   inherits: true;
-  initial-value: 64px;
-}
-
-.cursor,
-.cursor__dot {
-  display: none;
-}
-
-.has-cursor .cursor,
-.has-cursor .cursor__dot {
-  display: block;
+  initial-value: 84px;
 }
 
 .cursor {
-  --shape: 64px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 95;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform;
-  transition:
-    --shape 0.5s var(--ease-out),
-    opacity 0.3s;
+  --shape: 84px;
+  display: none;
+  transition: --shape 0.5s var(--ease-out);
 }
 
-.cursor.is-visible {
-  opacity: 1;
+.cursor-full .cursor,
+.cursor-lite .cursor {
+  display: block;
 }
 
 .cursor[data-mode="link"] {
-  --shape: 84px;
+  --shape: 104px;
 }
 
 .cursor[data-mode="copy"],
 .cursor[data-mode="drag"] {
-  --shape: 104px;
+  --shape: 116px;
 }
 
-.cursor[data-mode="open"] {
-  --shape: 148px;
-}
-
+.cursor[data-mode="open"],
 .cursor[data-mode="big"] {
-  --shape: 136px;
+  --shape: 150px;
 }
 
 .cursor[data-mode="huge"] {
-  --shape: 210px;
+  --shape: 220px;
 }
 
-.cursor__body {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: scale 0.25s var(--ease-out);
-}
-
-.cursor.is-pressed .cursor__body {
-  scale: 0.88;
-}
-
-/* The filtered box: larger than the shape, clipped to it inline */
 .cursor__glitch {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: calc(var(--shape) / 0.7);
-  height: calc(var(--shape) / 0.7);
-  translate: -50% -50%;
+  z-index: 95;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .cursor-full .cursor__glitch {
   backdrop-filter: url(#cursor-glitch);
 }
 
-/* Safari and Firefox can't run an SVG backdrop-filter: invert + scanlines */
-.cursor-lite .cursor__glitch {
-  transform: translateX(var(--jitter, 0px));
-  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgb(11 11 12 / 0.45) 3px 4px);
-  -webkit-backdrop-filter: invert(1) contrast(1.25);
-  backdrop-filter: invert(1) contrast(1.25);
+.cursor-lite .cursor__glitch,
+.cursor-lite .cursor__dot {
+  display: none;
 }
 
-/* Hairline around the shape so it reads even over empty background */
-.cursor__outline {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--shape);
-  height: var(--shape);
-  overflow: visible;
-  translate: -50% -50%;
+/* Filtered box is 1/0.7 of the region, which is clipped to its middle */
+.cursor__head {
+  width: calc(var(--shape) / 0.7);
+  height: calc(var(--shape) / 0.7);
 }
 
-.cursor__outline polygon {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1px;
-  vector-effect: non-scaling-stroke;
+.cursor.is-visible .cursor__head {
+  visibility: visible;
 }
 
-/* The exact click point */
+/* The exact point */
 .cursor__dot {
   position: fixed;
   top: 0;
@@ -344,28 +301,33 @@
   transition: opacity 0.2s;
 }
 
-.cursor__dot.is-visible {
+.cursor.is-visible .cursor__dot {
   opacity: 1;
 }
 
-.cursor__label {
-  position: absolute;
+/* Action tag beside the pointer */
+.cursor__tag {
+  position: fixed;
   top: 0;
   left: 0;
+  z-index: 96;
   padding: 4px 7px;
+  border-radius: 2px;
   background: var(--fg);
   color: var(--bg);
   white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
-  translate: -50% -50%;
-  transition: opacity 0.2s;
+  scale: 0.85;
+  transform-origin: 0 0;
+  transition:
+    opacity 0.2s,
+    scale 0.25s var(--ease-out);
 }
 
-.cursor[data-mode="open"] .cursor__label,
-.cursor[data-mode="copy"] .cursor__label,
-.cursor[data-mode="drag"] .cursor__label {
+.cursor.is-visible .cursor__tag.is-shown {
   opacity: 1;
-  transition-delay: 0.12s;
+  scale: 1;
 }
 
 .cursor__defs {
