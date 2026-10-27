@@ -1,4 +1,4 @@
-import CursorTag from './components/CursorTag'
+import Cursor from './components/Cursor'
 import Duck from './components/Duck'
 import Footer from './components/Footer'
 import Intro from './components/Intro'
@@ -26,7 +26,7 @@ export default function App() {
       <Duck />
       <Intro />
       <div className="grain" aria-hidden="true" />
-      <CursorTag />
+      <Cursor />
     </>
   )
 }

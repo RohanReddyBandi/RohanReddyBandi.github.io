@@ -5,7 +5,7 @@ import Lenis from 'lenis'
 gsap.registerPlugin(ScrollTrigger)
 
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-/** A mouse or trackpad: cursor tags and magnetic effects only make sense here */
+/** A mouse or trackpad: the custom cursor and magnetic effects only make sense here */
 export const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
 
 let lenis: Lenis | null = null
