@@ -383,6 +383,174 @@
   }
 }
 
+/* A nested entry follows its parent with no rule between them */
+.xp-entry:has(.is-nested) {
+  border-top: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Experience scene: the wall of place names (see Experience.tsx)      */
+/* ------------------------------------------------------------------ */
+
+.xp-scene {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--accent) 24%, transparent) 1px, transparent 1.6px) 0 0 / 22px 22px,
+    var(--bg);
+}
+
+.xp-scene__head,
+.xp-scene__foot {
+  position: relative;
+  z-index: 2;
+  background: var(--bg);
+}
+
+.xp-scene__head {
+  padding-block: clamp(5.5rem, 12svh, 7.5rem) clamp(1rem, 3svh, 2rem);
+}
+
+.xp-scene__foot {
+  align-items: center;
+  padding-block: clamp(0.9rem, 2.4svh, 1.5rem);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.xp-scene__stage {
+  position: relative;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+}
+
+.xp-wall {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, min(21svh, 22vw), 17rem);
+  font-weight: 600;
+  line-height: 0.84;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.xp-wall__row,
+.xp-wall__track,
+.xp-wall__word {
+  transform-style: preserve-3d;
+}
+
+.xp-wall__row {
+  white-space: nowrap;
+}
+
+/* Landscape: one set of rows. Portrait (phones): both sets, smaller, so the
+   letters fill the tall stage instead of a thin band */
+@media (min-aspect-ratio: 4/5) {
+  .xp-wall__row:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (max-aspect-ratio: 4/5) {
+  .xp-wall {
+    font-size: min(12.5svh, 30vw);
+  }
+}
+
+.xp-wall__track {
+  display: inline-flex;
+  will-change: transform;
+}
+
+.xp-wall__word {
+  display: inline-flex;
+  align-items: center;
+}
+
+.xp-wall__letter {
+  display: inline-block;
+}
+
+.xp-wall__sep {
+  padding-inline: 0.22em;
+  color: var(--fg);
+  font-size: 0.32em;
+  opacity: 0.55;
+}
+
+/* The cards get their own 3D layer over the wall (not the wall's): that
+   keeps them on top, and at their reading moment (z = 0, no rotation)
+   Chrome rasterizes them sharp instead of scaling a blurry texture */
+.xp-cards {
+  position: absolute;
+  inset: 0;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/* Paper cards, so they read against the accent letters */
+.xp-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(17rem, 36vw, 34rem);
+  padding: 1.4rem 1.6rem 1.7rem;
+  border-radius: 2px;
+  background: var(--fg);
+  color: var(--bg);
+  opacity: 0;
+  visibility: hidden;
+  backface-visibility: hidden;
+  /* no will-change: it freezes the card's raster at its base size, so the
+     text goes soft once it's scaled up in front of the wall */
+}
+
+.xp-card__code,
+.xp-card__meta,
+.xp-card__parent {
+  color: rgb(11 11 12 / 0.66);
+}
+
+.xp-card__title {
+  margin-top: 1.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.xp-card__meta {
+  margin-top: 1rem;
+}
+
+.xp-card__parent {
+  margin-top: 0.4rem;
+}
+
+.xp-card__line {
+  margin-top: 0.9rem;
+  color: rgb(11 11 12 / 0.8);
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+
 /* ------------------------------------------------------------------ */
 /* Contact                                                             */
 /* ------------------------------------------------------------------ */

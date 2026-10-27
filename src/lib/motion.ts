@@ -53,6 +53,9 @@ const easeInOutQuart = (t: number) => (t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) *
 
 /** Scroll to an element (or the top), smoothly unless motion is reduced. */
 export function scrollToTarget(target: HTMLElement | 'top') {
+  // A pinned section's own position moves while pinned; aim for the spacer
+  // GSAP wraps it in, which marks where the section really starts
+  if (target !== 'top' && target.parentElement?.classList.contains('pin-spacer')) target = target.parentElement
   const y = target === 'top' ? 0 : target
   if (lenis) lenis.scrollTo(y, { duration: 1.2, easing: easeInOutQuart })
   else if (target === 'top') window.scrollTo(0, 0)

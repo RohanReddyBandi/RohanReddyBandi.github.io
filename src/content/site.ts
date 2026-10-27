@@ -65,16 +65,24 @@ export const site = {
     },
   ],
   // Experience, in this order. `under` entries sit nested beneath their parent.
+  // `short` is the word repeated across that entry's row of the giant letter
+  // wall; `code` is the little mono tag on its card.
   experience: [
     {
       title: 'Purdue University',
+      short: 'Purdue',
+      code: 'PU',
       caption: 'B.S. Computer Science',
       when: '[GRAD YEAR]',
       line: '',
-      under: [{ title: 'The Data Mine', caption: 'General cohort', when: '[YEAR]', line: '' }],
+      under: [
+        { title: 'The Data Mine', short: 'Data Mine', code: 'DM', caption: 'General cohort', when: '[YEAR]', line: '' },
+      ],
     },
     {
       title: 'Carnegie Mellon Robotics Academy',
+      short: 'CMU',
+      code: 'CMU',
       caption: 'Robotics apprenticeship',
       when: 'Summer 2024',
       line: 'Built an Arduino robot and programmed its movement and sensor responses in C.',
