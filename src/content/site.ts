@@ -5,12 +5,8 @@ export const site = {
   url: 'https://rohanreddybandi.github.io/',
   name: { first: 'Rohan Reddy', last: 'Bandi' },
   initials: 'RRB',
-  // The hero subheadline: the lead stays, the second line follows the market
-  tagline: {
-    lead: 'CS @ Purdue.',
-    bull: 'Building things people actually use.',
-    bear: 'Everything is fine.',
-  },
+  // The hero subheadline, two lines
+  tagline: { lead: 'CS @ Purdue.', rest: 'Building things people actually use.' },
   // Top bar clock. [CONFIRM: West Lafayette, or somewhere else?]
   clock: { city: 'West Lafayette', timeZone: 'America/Indiana/Indianapolis' },
   email: '[EMAIL]',
@@ -29,7 +25,8 @@ export const site = {
   },
   // Selected work, in this order. Years come from each repo's first commit.
   // `shot` names the screenshot in src/assets/work/ (see Work.tsx); projects
-  // without one show a [SCREENSHOT] placeholder.
+  // without one show a [SCREENSHOT] placeholder. `short` is the word repeated
+  // across that project's row of the gallery wall, `code` its card's tag.
   work: [
     {
       title: 'Duck Days',
@@ -40,6 +37,9 @@ export const site = {
       href: 'https://apps.apple.com/us/app/duckdays/id6808773849',
       linkLabel: 'App Store',
       shot: 'duck-days',
+      short: 'Duck Days',
+      code: 'DD',
+      self: false,
     },
     {
       title: 'TRADR',
@@ -51,6 +51,9 @@ export const site = {
       href: 'https://tradr-ebon.vercel.app/',
       linkLabel: 'Live site',
       shot: 'tradr',
+      short: 'TRADR',
+      code: 'TR',
+      self: false,
     },
     {
       title: 'Compound Growth',
@@ -62,6 +65,24 @@ export const site = {
       href: 'https://compoundgrowth.vercel.app/',
       linkLabel: 'Live site',
       shot: 'compound-growth',
+      short: 'Compound',
+      code: 'CG',
+      self: false,
+    },
+    {
+      title: 'This Very Website',
+      line: 'You’re looking at it.',
+      detail:
+        'A glyph-field hero you can scramble, a scroll-pinned 3D gallery, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
+      tags: ['React', 'TypeScript', 'GSAP', 'Canvas', 'SVG filters'],
+      year: '2026',
+      href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
+      linkLabel: 'Source on GitHub',
+      shot: 'this-website',
+      short: 'You Are Here',
+      code: 'YOU',
+      // The finale card: build facts and the site-inside-itself screenshot
+      self: true,
     },
   ],
   // Experience, in this order. `under` entries sit nested beneath their parent.
@@ -91,7 +112,7 @@ export const site = {
   ],
   nav: [
     { label: 'Work', href: '#work' },
-    { label: 'Experience', href: '#experience' },
+    { label: 'Education', href: '#experience' },
     { label: 'About', href: '#about' },
     { label: 'Contact', href: '#contact' },
   ],

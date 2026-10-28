@@ -1,96 +1,108 @@
-// Renders the link-preview image (public/og.png, 1200×630) and the PNG
-// favicons from SVG, using the same seeded market as the hero and the real
-// fonts. Run with `npm run og` (Node 22.18+ for the .ts import), then commit
-// the PNGs. Needs curl and unzip, same as scripts/fetch-fonts.sh.
+// Renders the link-preview image (public/og.png, 1200×630) in the hero's
+// glyph-field style, plus the PNG favicons, with resvg and the real fonts.
+// Run with `npm run og`, then commit the PNGs. Needs curl and unzip.
 import { Resvg } from '@resvg/resvg-js'
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { aggregate, generateSeries } from '../src/lib/market.ts'
 
 const root = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url))
 const W = 1200
 const H = 630
-const C = { bg: '#0b0b0c', fg: '#edede8', muted: '#8a8a85', line: 'rgba(237,237,232,0.07)', accent: '#c8ff3d' }
+const CELL = 10
+const COLS = W / CELL
+const ROWS = H / CELL
+const SAMPLES = 4
 
 // resvg needs TTFs; the site's woff2 files won't do. Fetch once into a cache.
 const cache = root('node_modules/.cache/og-fonts')
-function ttf(slug, file) {
-  const out = `${cache}/${file}`
+function ttf(url, file) {
+  const out = `${cache}/${file.split('/').pop()}`
   if (!existsSync(out)) {
     mkdirSync(cache, { recursive: true })
-    const zip = `${cache}/${slug}.zip`
-    execFileSync('curl', ['-fsSL', `https://api.fontshare.com/v2/fonts/download/${slug}`, '-o', zip])
-    execFileSync('unzip', ['-q', '-o', '-j', zip, `*/Fonts/WEB/fonts/${file}`, '-d', cache])
+    const zip = `${cache}/${encodeURIComponent(url).slice(-40)}.zip`
+    execFileSync('curl', ['-fsSL', url, '-o', zip])
+    execFileSync('unzip', ['-q', '-o', '-j', zip, file, '-d', cache])
   }
   return out
 }
-const fonts = [ttf('clash-display', 'ClashDisplay-Semibold.ttf'), ttf('general-sans', 'GeneralSans-Medium.ttf')]
+const fonts = [
+  ttf('https://api.fontshare.com/v2/fonts/download/clash-display', '*/Fonts/WEB/fonts/ClashDisplay-Semibold.ttf'),
+  ttf('https://api.fontshare.com/v2/fonts/download/general-sans', '*/Fonts/WEB/fonts/GeneralSans-Medium.ttf'),
+  ttf('https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip', 'fonts/ttf/JetBrainsMono-Medium.ttf'),
+]
+const render = (svg, width) =>
+  new Resvg(svg, { fitTo: { mode: 'width', value: width }, font: { fontFiles: fonts, loadSystemFonts: false } }).render()
 
-function chart() {
-  const candles = aggregate(generateSeries(), 4)
-  const left = 0
-  const right = W - 150
-  const top = 92
-  const bottom = 330
-  const pitch = (right - left) / candles.length
-  const min = Math.min(...candles.map((c) => c.l))
-  const max = Math.max(...candles.map((c) => c.h))
-  const y = (p) => bottom - ((p - min) / (max - min)) * (bottom - top)
-  const body = Math.max(2, pitch * 0.58)
-  const marks = candles.map((c, i) => {
-    const x = (i + 0.5) * pitch
-    const t = Math.min(y(c.o), y(c.c))
-    const h = Math.max(1, Math.abs(y(c.c) - y(c.o)))
-    const wick = `<line x1="${x}" x2="${x}" y1="${y(c.h)}" y2="${y(c.l)}"/>`
-    const box =
-      c.c >= c.o
-        ? `<rect x="${x - body / 2}" y="${t}" width="${body}" height="${h}" fill="${C.accent}"/>`
-        : `<rect x="${x - body / 2 + 0.5}" y="${t + 0.5}" width="${body - 1}" height="${Math.max(1, h - 1)}" fill="${C.bg}"/>`
-    return wick + box
-  })
-  const grid = [0, 1, 2, 3, 4]
-    .map((i) => top + ((bottom - top) * i) / 4)
-    .map((gy) => `<line x1="0" x2="${right}" y1="${gy}" y2="${gy}" stroke="${C.line}"/>`)
-  const last = candles[candles.length - 1]
-  const ly = y(last.c)
-  const tag = last.c.toFixed(2)
-  return `
-    ${grid.join('')}
-    <g stroke="${C.accent}" stroke-width="1.2" opacity="0.42" filter="url(#glow)">${marks.join('')}</g>
-    <line x1="0" x2="${right}" y1="${ly}" y2="${ly}" stroke="${C.accent}" stroke-opacity="0.4" stroke-dasharray="2 5"/>
-    <rect x="${W - 64 - 78}" y="${ly - 13}" width="78" height="26" fill="${C.accent}"/>
-    <text x="${W - 64 - 39}" y="${ly + 6}" text-anchor="middle" font-family="General Sans" font-weight="500" font-size="16" fill="${C.bg}">${tag}</text>`
+// Same seeded noise every run
+let seed = 0x5eed2026
+const rand = () => {
+  seed = (seed + 0x6d2b79f5) | 0
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+const pick = (chars) => chars[(rand() * chars.length) | 0]
+const esc = (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c] ?? c
+
+// 1. The name as a mask, at SAMPLES pixels per cell. "ROHAN REDDY" is
+//    ~7.03em wide in Clash Display at -0.035em tracking (same as the hero).
+const lines = ['ROHAN REDDY', 'BANDI']
+const margin = 5 // cells
+const size = ((COLS - margin * 2) * CELL) / 7.1
+const top = 150
+const mask = render(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+    <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#000">
+      ${lines.map((l, k) => `<text x="${margin * CELL}" y="${top + size * (0.86 * k + 0.74)}">${l}</text>`).join('')}
+    </g>
+  </svg>`,
+  COLS * SAMPLES,
+)
+const px = mask.pixels
+const coverAt = (x, y) => {
+  let c = 0
+  for (let sy = 0; sy < SAMPLES; sy++)
+    for (let sx = 0; sx < SAMPLES; sx++) c += px[((y * SAMPLES + sy) * mask.width + x * SAMPLES + sx) * 4 + 3]
+  return c / (255 * SAMPLES * SAMPLES)
+}
+
+// 2. The field: faint 0s and 1s, letters as inverse-video cells
+const cells = []
+for (let y = 0; y < ROWS; y++) {
+  for (let x = 0; x < COLS; x++) {
+    const cover = coverAt(x, y)
+    const cx = x * CELL + CELL / 2
+    const cy = y * CELL + CELL / 2 + 3.4
+    if (cover > 0.5 || cover > 0.14) {
+      const ink = cover > 0.5
+      cells.push(
+        `<rect x="${x * CELL}" y="${y * CELL}" width="${CELL}" height="${CELL}" fill="${ink ? '#edede8' : 'rgba(237,237,232,0.42)'}"/>` +
+          `<text x="${cx}" y="${cy}" fill="rgba(11,11,12,${ink ? 0.72 : 0.55})">${esc(pick(ink ? '#%&@$08' : '+=:-'))}</text>`,
+      )
+    } else if (rand() < 0.55) {
+      cells.push(`<text x="${cx}" y="${cy}" fill="rgba(237,237,232,0.13)">${pick('01')}</text>`)
+    }
+  }
 }
 
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs>
-    <filter id="glow" x="-5%" y="-5%" width="110%" height="110%">
-      <feGaussianBlur stdDeviation="3" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <rect width="${W}" height="${H}" fill="${C.bg}"/>
-  ${chart()}
-  <text x="64" y="58" font-family="Clash Display" font-weight="600" font-size="24" fill="${C.fg}">RRB</text>
-  <text x="${W - 64}" y="56" text-anchor="end" font-family="General Sans" font-weight="500" font-size="15" letter-spacing="3" fill="${C.muted}">ROHANREDDYBANDI.GITHUB.IO</text>
-  <g font-family="Clash Display" font-weight="600" font-size="150" letter-spacing="-5.25" fill="${C.fg}">
-    <text x="58" y="452">ROHAN REDDY</text>
-    <text x="58" y="578">BANDI</text>
+  <rect width="${W}" height="${H}" fill="#0b0b0c"/>
+  <g font-family="JetBrains Mono" font-weight="500" font-size="${CELL * 0.86}" text-anchor="middle">${cells.join('')}</g>
+  <rect x="40" y="30" width="72" height="34" fill="#0b0b0c"/>
+  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#edede8">RRB</text>
+  <rect x="${W - 372}" y="34" width="332" height="30" fill="#0b0b0c"/>
+  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#8a8a85">ROHANREDDYBANDI.GITHUB.IO</text>
+  <rect x="40" y="${H - 104}" width="520" height="74" fill="#0b0b0c"/>
+  <g font-family="General Sans" font-weight="500" font-size="26" fill="#8a8a85">
+    <text x="50" y="${H - 72}">CS @ Purdue.</text>
+    <text x="50" y="${H - 40}">Building things people actually use.</text>
   </g>
-  <g font-family="General Sans" font-weight="500" font-size="26" fill="${C.muted}">
-    <text x="${W / 2 + 40}" y="540">CS @ Purdue.</text>
-    <text x="${W / 2 + 40}" y="574">Building things people actually use.</text>
-  </g>
+  <rect x="${W - 50 - 12}" y="${H - 64}" width="12" height="12" fill="#c8ff3d"/>
 </svg>`
 
-const render = (svg, width) =>
-  new Resvg(svg, { fitTo: { mode: 'width', value: width }, font: { fontFiles: fonts, loadSystemFonts: false } })
-    .render()
-    .asPng()
-
-writeFileSync(root('public/og.png'), render(og, W))
+writeFileSync(root('public/og.png'), render(og, W).asPng())
 const favicon = readFileSync(root('public/favicon.svg'), 'utf8')
-writeFileSync(root('public/favicon-32.png'), render(favicon, 32))
-writeFileSync(root('public/apple-touch-icon.png'), render(favicon, 180))
+writeFileSync(root('public/favicon-32.png'), render(favicon, 32).asPng())
+writeFileSync(root('public/apple-touch-icon.png'), render(favicon, 180).asPng())
 console.log('og: wrote public/og.png, public/favicon-32.png, public/apple-touch-icon.png')

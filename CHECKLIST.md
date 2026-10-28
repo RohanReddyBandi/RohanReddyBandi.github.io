@@ -14,8 +14,9 @@ push to `main` and the site redeploys.
 | Signature | `src/assets/signature.svg` | Replace the file. Best: an SVG drawn as strokes (it draws itself on scroll). A filled outline also works (it wipes in). A photo of it on paper also works; it gets traced. |
 
 TRADR and Compound Growth screenshots are real captures from their live sites
-(`src/assets/work/tradr-*.webp`, `compound-growth-*.webp`). Swap them for your
-own anytime with the same names.
+(`src/assets/work/tradr-*.webp`, `compound-growth-*.webp`), and "This Very
+Website" shows the site inside itself (`this-website-*.webp`). Swap any of
+them for your own anytime with the same names.
 
 ## Text (`src/content/site.ts`)
 
@@ -25,11 +26,11 @@ own anytime with the same names.
 | `linkedin: '[LINKEDIN URL]'` | Contact row; becomes a link once it's a real `https://` URL |
 | `about.line: '[ABOUT LINE]'` | The big statement in About. One or two casual sentences. |
 | `clock.city` / `clock.timeZone` | Top bar clock. Set to West Lafayette; change if you'd rather not. |
-| Purdue `when: '[GRAD YEAR]'` | Experience, Purdue row |
-| The Data Mine `when: '[YEAR]'` | Experience, nested under Purdue |
+| Purdue `when: '[GRAD YEAR]'` | Education, Purdue row |
+| The Data Mine `when: '[YEAR]'` | Education, nested under Purdue |
 | The Data Mine `line: ''` | Optional: one line on what you worked on |
 | Work `year` | Duck Days 2026, TRADR 2026, Compound Growth 2025, from each repo's first commit |
 
-## If you change your name, tagline or chart
+## If you change your name or tagline
 
 Re-render the link preview image: `npm run og`, then commit `public/og.png`.

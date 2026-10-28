@@ -143,7 +143,7 @@
   overflow: hidden;
   padding-block: 0.9rem 0.6rem;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 13vw, 4.5rem);
+  font-size: clamp(2.25rem, 11vw, 3.75rem);
   font-weight: 600;
   line-height: 0.95;
   text-transform: uppercase;
@@ -226,11 +226,11 @@
 @property --shape {
   syntax: "<length>";
   inherits: true;
-  initial-value: 84px;
+  initial-value: 56px;
 }
 
 .cursor {
-  --shape: 84px;
+  --shape: 56px;
   display: none;
   transition: --shape 0.5s var(--ease-out);
 }
@@ -241,21 +241,21 @@
 }
 
 .cursor[data-mode="link"] {
-  --shape: 104px;
+  --shape: 68px;
 }
 
-.cursor[data-mode="copy"],
-.cursor[data-mode="drag"] {
-  --shape: 116px;
+.cursor[data-mode="copy"] {
+  --shape: 76px;
 }
 
 .cursor[data-mode="open"],
 .cursor[data-mode="big"] {
-  --shape: 150px;
+  --shape: 96px;
 }
 
-.cursor[data-mode="huge"] {
-  --shape: 220px;
+/* Over the hero: no glitch, just the point marker */
+.cursor.is-visible[data-mode="calm"] .cursor__head {
+  visibility: hidden;
 }
 
 .cursor__glitch {

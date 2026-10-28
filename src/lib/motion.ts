@@ -62,6 +62,12 @@ export function scrollToTarget(target: HTMLElement | 'top') {
   else target.scrollIntoView()
 }
 
+/** Jump straight to a scroll position (no easing), smoothed scroll or not. */
+export function scrollToY(y: number) {
+  if (lenis) lenis.scrollTo(y, { immediate: true })
+  else window.scrollTo(0, y)
+}
+
 /**
  * Go to an in-page section ("#work", "#top"): scroll there, update the URL,
  * and move keyboard focus so Tab continues from the new section.

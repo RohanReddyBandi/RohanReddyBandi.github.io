@@ -8,18 +8,18 @@ import { finePointer, reducedMotion } from '../lib/motion'
 // it into red and cyan, harder the faster you move, and drops a short trail
 // of fading glitch pieces along the path. A 4px square marks the exact point
 // (with the system cursor hidden, flat background would otherwise show
-// nothing). Over elements tagged data-cursor="open" | "copy" | "drag" a small
-// tag says the action.
+// nothing). Over elements tagged data-cursor="open" | "copy" a small tag says
+// the action. Over the hero it stays calm (just the marker), since the hero's
+// glyph field scrambles itself under the pointer.
 // The glitch is an SVG filter run as backdrop-filter, which only Chromium
 // supports; Safari and Firefox keep the system cursor and just get the tags.
 // Mouse/trackpad with motion allowed only.
 
 const INTERACTIVE = 'a, button, [role="button"], [role="slider"], summary, label'
-// Giant type: the glitch region swells over it so there's plenty to break up.
-// LET'S TALK gets the biggest, since its letters lean away from the pointer.
-const BIG_TYPE = '.hero-name'
-const HUGE_TYPE = '.contact__talk'
-const LABELS: Record<string, string> = { open: 'Open ↗', copy: 'Copy', drag: 'Drag' }
+// Big type: the glitch region swells over it so there's more to break up
+const BIG_TYPE = '.contact__talk'
+const CALM = '.glyph-hero'
+const LABELS: Record<string, string> = { open: 'Open ↗', copy: 'Copy' }
 
 // The region's outline, in % of its own box: stepped, so glitched areas have
 // pixel-stair edges. The filtered box is larger than the shape (which sits in
@@ -144,7 +144,7 @@ export default function Cursor() {
     const drop = (x: number, y: number, strength: number, now: number) => {
       const b = bits[nextBit]
       nextBit = (nextBit + 1) % bits.length
-      const size = (36 + strength * 64) / 0.7
+      const size = (24 + strength * 40) / 0.7
       gsap.set(b.el, { x, y, width: size, height: size })
       b.t = now
       b.life = 280 + strength * 220 // gone within ~0.3–0.5s
@@ -160,7 +160,7 @@ export default function Cursor() {
       const words = LABELS[next]
       if (words) tag.current!.textContent = words
       tag.current!.classList.toggle('is-shown', Boolean(words))
-      if (next) wake(0.8) // landing on something clickable makes it bug out
+      if (next && next !== 'calm') wake(0.8) // landing on something clickable makes it bug out
     }
     const move = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
@@ -178,7 +178,7 @@ export default function Cursor() {
       dotY(y)
       tagX(x + TAG_OFFSET.x)
       tagY(y + TAG_OFFSET.y)
-      if (!full) return
+      if (!full || mode === 'calm') return
       headX(x)
       headY(y)
 
@@ -194,11 +194,10 @@ export default function Cursor() {
     }
     const over = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
-      if (html.hasAttribute('data-dragging')) return setMode('drag')
       const t = e.target as Element
       const tagged = t.closest<HTMLElement>('[data-cursor]')?.dataset.cursor
-      const type = t.closest(HUGE_TYPE) ? 'huge' : t.closest(BIG_TYPE) ? 'big' : ''
-      setMode(tagged ?? (t.closest(INTERACTIVE) ? 'link' : type))
+      const area = t.closest(CALM) ? 'calm' : t.closest(BIG_TYPE) ? 'big' : ''
+      setMode(tagged ?? (t.closest(INTERACTIVE) ? 'link' : area))
     }
     const press = () => wake(1)
     const hide = () => {

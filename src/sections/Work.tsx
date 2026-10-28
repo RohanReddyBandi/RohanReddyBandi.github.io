@@ -1,9 +1,12 @@
 import gsap from 'gsap'
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useLayoutEffect, useRef, type CSSProperties } from 'react'
 import SectionHead from '../components/SectionHead'
 import { site } from '../content/site'
-import { reducedMotion } from '../lib/motion'
+import { reducedMotion, scrollToY } from '../lib/motion'
 import { useRevealRows } from '../lib/reveal'
+
+gsap.registerPlugin(ScrollTrigger)
 
 type Project = (typeof site.work)[number]
 
@@ -79,7 +82,8 @@ function Row({ project, index }: { project: Project; index: number }) {
   )
 }
 
-export default function Work() {
+/** Reduced motion: full-width rows, with a screenshot that follows the mouse */
+function WorkRows() {
   const list = useRef<HTMLOListElement>(null)
   const preview = useRef<HTMLDivElement>(null)
   const reel = useRef<HTMLDivElement>(null)
@@ -166,4 +170,195 @@ export default function Work() {
       </ol>
     </section>
   )
+}
+
+// ---------------------------------------------------------------------------
+// The gallery (after wodniack.dev's work wall): the section pins, a wall of
+// giant repeated project names sways in 3D as you scroll, and each project's
+// screenshot card flies out of the distance, hangs in front of the wall long
+// enough to read, then rushes past. The last card is this site itself.
+
+const CARD_SPAN = 1.6 // each card's flight, in "card slots"; > 1 so they overlap
+const SCROLL_PER_CARD = 0.95 // screens of scrolling per card while pinned
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
+// Fast in, lingers in the middle (so the card can be read), fast out
+const linger = (t: number) => 0.5 + 4 * (t - 0.5) ** 3
+const pad = (n: number) => String(n).padStart(2, '0')
+// Enough repeats that a row still covers ultrawide screens while it slides
+const repeatsFor = (word: string) => Math.max(5, Math.ceil(34 / (word.length + 1)))
+
+function Wall() {
+  return (
+    <div className="fly-wall" aria-hidden="true">
+      {site.work.map((p, r) => (
+        <div key={p.title} className="fly-wall__row">
+          <div className="fly-wall__track">
+            {Array.from({ length: repeatsFor(p.short) }, (_, i) => (
+              <span key={i} className="fly-wall__word">
+                {[...p.short].map((ch, j) => (
+                  <span key={j} className="fly-wall__letter">
+                    {ch === ' ' ? '\u00a0' : ch}
+                  </span>
+                ))}
+                <span className="fly-wall__sep">{r % 2 ? '✦' : '·'}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Real numbers about this build, read from git when the site is built */
+function BuildFacts() {
+  const date = new Date(__BUILD__.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return (
+    <p className="fly-card__facts label">
+      <span className="fly-card__live">
+        <span className="live-dot" aria-hidden="true" />
+        You are here
+      </span>
+      <span>Commit #{__BUILD__.commits}</span>
+      <span>Built {date}</span>
+    </p>
+  )
+}
+
+function WorkGallery() {
+  const section = useRef<HTMLElement>(null)
+  const count = useRef<HTMLSpanElement>(null)
+  const n = site.work.length
+
+  useLayoutEffect(() => {
+    const el = section.current!
+    const ctx = gsap.context(() => {
+      const wall = el.querySelector<HTMLElement>('.fly-wall')!
+      const tracks = gsap.utils.toArray<HTMLElement>('.fly-wall__track')
+      const cards = gsap.utils.toArray<HTMLElement>('.fly-card')
+      // Every letter wobbles on its own on wider screens; on phones whole
+      // words do, to keep the number of moving 3D layers down
+      const wide = window.matchMedia('(min-width: 48rem)').matches
+      const pieces = tracks.map((t) => [...t.querySelectorAll<HTMLElement>(wide ? '.fly-wall__letter' : '.fly-wall__word')])
+      // cards drift off to the sides on wide screens, stay centered on phones
+      const spread = wide ? 1 : 0.15
+      const units = n + CARD_SPAN - 1
+      let shown = 0
+
+      const render = (p: number) => {
+        // the whole wall turns a little, like a camera drifting past it
+        wall.style.transform = `rotateX(${lerp(14, -8, p)}deg) rotateY(${lerp(-10, 10, p)}deg)`
+        tracks.forEach((track, r) => {
+          // rows slide in alternate directions
+          const x = r % 2 ? lerp(-38, -12, p) : lerp(-12, -38, p)
+          track.style.transform = `translate3d(${x}%, 0, 0)`
+          pieces[r].forEach((piece, i) => {
+            const a = p * Math.PI * 4 + i * (wide ? 0.5 : 1.1) + r * 1.7
+            const s = Math.sin(a)
+            piece.style.transform = `translateZ(${(s * 60).toFixed(1)}px) rotateY(${(s * 28).toFixed(1)}deg) rotateZ(${(Math.cos(a * 0.8) * 5).toFixed(1)}deg)`
+          })
+        })
+
+        // cards fly from deep behind the wall, hang in front of it, then pass you
+        let current = shown
+        let clearest = 0.01
+        cards.forEach((card, i) => {
+          const t = clamp01((p * units - i) / CARD_SPAN)
+          const k = linger(t)
+          // z = 0 with no rotation at the midpoint, so it's pixel-sharp while you read it
+          const z = lerp(-2600, 2600, k)
+          const side = i % 2 ? 1 : -1
+          const xvw = (side * 10 + (k - 0.5) * side * 14) * spread
+          const opacity = z > 750 ? 0 : Math.min(clamp01(t / 0.3), clamp01((0.84 - t) / 0.12))
+          card.style.opacity = opacity.toFixed(3)
+          // only the card you're looking at takes clicks
+          card.style.pointerEvents = opacity > 0.6 ? 'auto' : 'none'
+          card.style.transform = `translate(-50%, -50%) translate3d(${xvw.toFixed(2)}vw, 0, ${z.toFixed(0)}px) rotateY(${((0.5 - k) * 24 * side).toFixed(1)}deg) rotateZ(${((k - 0.5) * 6 * side).toFixed(1)}deg)`
+          // the counter follows whichever card is most visible (and holds between them)
+          if (opacity > clearest) {
+            clearest = opacity
+            current = i
+          }
+        })
+        if (current !== shown && count.current) {
+          shown = current
+          count.current.textContent = `${pad(current + 1)} / ${pad(n)}`
+        }
+      }
+
+      const pin = ScrollTrigger.create({
+        trigger: el,
+        start: 'top top',
+        end: () => `+=${window.innerHeight * SCROLL_PER_CARD * n}`,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => render(self.progress),
+        onRefresh: (self) => render(self.progress),
+      })
+      render(0)
+
+      // Tabbing to a card jumps the scroll to the moment it hangs in view
+      cards.forEach((card, i) => {
+        card.addEventListener('focusin', () => {
+          const p = (i + CARD_SPAN / 2) / units
+          scrollToY(pin.start + (pin.end - pin.start) * p)
+        })
+      })
+    }, el)
+    return () => ctx.revert()
+  }, [n])
+
+  return (
+    <section ref={section} id="work" className="fly-scene" aria-labelledby="work-title">
+      <div className="fly-scene__head">
+        <SectionHead label="Selected work" id="work-title" />
+      </div>
+
+      <div className="fly-scene__stage">
+        <Wall />
+        <ol className="fly-cards">
+          {site.work.map((p, i) => (
+            <li key={p.title} className={`fly-card ${p.self ? 'is-self' : ''}`}>
+              <a className="fly-card__link" href={p.href} target="_blank" rel="noopener" data-cursor="open">
+                <div className="fly-card__shot" aria-hidden="true">
+                  <Shot project={p} />
+                </div>
+                <div className="fly-card__body">
+                  <p className="fly-card__code label">
+                    #{p.code}-{pad(i + 1)}/{pad(n)}
+                  </p>
+                  <h3 className="fly-card__title">
+                    {p.title}
+                    <span className="sr-only"> ({p.linkLabel}, opens in a new tab)</span>
+                  </h3>
+                  <p className="fly-card__line">{p.line}</p>
+                  {p.self && <p className="fly-card__detail">{p.detail}</p>}
+                  {p.self && <BuildFacts />}
+                  <p className="fly-card__meta label">
+                    <span>{p.tags.join(' · ')}</span>
+                    <span>
+                      {p.year} <span aria-hidden="true">↗</span>
+                    </span>
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="fly-scene__foot site-grid" aria-hidden="true">
+        <span ref={count} className="label col-span-2">
+          01 / {pad(n)}
+        </span>
+        <span className="label col-span-2 justify-self-end md:col-span-4 md:col-start-9">Keep scrolling</span>
+      </div>
+    </section>
+  )
+}
+
+export default function Work() {
+  return reducedMotion.matches ? <WorkRows /> : <WorkGallery />
 }
