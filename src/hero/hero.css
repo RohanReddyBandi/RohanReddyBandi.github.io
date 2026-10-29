@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------ */
-/* Hero: the glyph field (see GlyphField.ts) with a footer row         */
+/* Hero: the name in solid type over the glyph field (GlyphField.ts)   */
 /* ------------------------------------------------------------------ */
 
 .glyph-hero {
@@ -21,40 +21,82 @@
 .hero__foot {
   position: absolute;
   inset: auto 0 0;
-  align-items: end;
-  row-gap: 1rem;
   padding-bottom: clamp(1.25rem, 4.5svh, 3rem);
 }
 
+/*
+  The name fills its column. "ROHAN REDDY" measures ~7.03em wide in Clash
+  Display at this tracking, so its size = column width / 7.1, capped by the
+  viewport height so short, wide screens keep room. On phones each word gets
+  its own line (ROHAN / REDDY / BANDI); "ROHAN", the widest, is ~3.54em.
+  Change the name, re-measure the ratios.
+*/
+.hero__stack {
+  --name-size: min(100cqi / 3.6, 17svh);
+  position: relative;
+  grid-column: 1 / -1;
+  container-type: inline-size;
+}
+
+@media (width >= 48rem) {
+  .hero__stack {
+    --name-size: min(100cqi / 7.1, 25svh);
+  }
+}
+
+.hero-name {
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.hero-name__line {
+  display: block;
+  white-space: nowrap;
+  font-size: var(--name-size);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+}
+
+.hero-name__word,
+.hero-name__letter {
+  display: inline-block;
+}
+
+.hero-name__letter {
+  will-change: transform;
+}
+
+@media (width < 48rem) {
+  .hero-name__line:first-child .hero-name__word {
+    display: block;
+  }
+}
+
+/* Under the name on phones and tablets; beside "BANDI" on desktop */
+.hero__aside {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gutter);
+  margin-top: 1.5rem;
+}
+
 .hero__tagline {
-  grid-column: 1 / span 3;
   max-width: 28ch;
   text-wrap: balance;
 }
 
-.hero__hint {
-  display: none;
-  color: var(--muted);
-}
-
-.scroll-cue {
-  grid-column: 4;
-  justify-self: end;
-}
-
-@media (width >= 48rem) {
-  .hero__tagline {
-    grid-column: 1 / span 6;
-  }
-
-  .hero__hint {
-    display: block;
-    grid-column: 7 / span 4;
-    padding-bottom: 0.4rem;
-  }
-
-  .scroll-cue {
-    grid-column: 11 / span 2;
+@media (width >= 64rem) {
+  /* Starts on grid column 7; lifted so the last line's baseline sits on
+     BANDI's (which is ~0.115em of the name size above the line box bottom) */
+  .hero__aside {
+    position: absolute;
+    right: 0;
+    bottom: calc(var(--name-size) * 0.115 - 0.65rem);
+    left: calc(50% + var(--gutter) / 2);
+    margin: 0;
   }
 }
 
@@ -70,6 +112,10 @@
 /* ------------------------------------------------------------------ */
 /* Scroll cue                                                          */
 /* ------------------------------------------------------------------ */
+
+.scroll-cue {
+  flex-shrink: 0;
+}
 
 .scroll-cue__link {
   display: flex;

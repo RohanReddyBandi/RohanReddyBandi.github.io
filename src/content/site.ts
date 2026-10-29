@@ -9,21 +9,11 @@ export const site = {
   tagline: { lead: 'CS @ Purdue.', rest: 'Building things people actually use.' },
   // Top bar clock. [CONFIRM: West Lafayette, or somewhere else?]
   clock: { city: 'West Lafayette', timeZone: 'America/Indiana/Indianapolis' },
-  email: '[EMAIL]',
   links: {
     github: 'https://github.com/RohanReddyBandi',
-    linkedin: '[LINKEDIN URL]',
     resume: '/resume.pdf',
   },
-  about: {
-    // [ABOUT LINE]: one or two casual sentences, in your words
-    line: '[ABOUT LINE]',
-    facts: [
-      { label: 'Studying', value: 'B.S. Computer Science, Purdue University' },
-      { label: 'Shipped', value: 'Duck Days, live on the App Store' },
-    ],
-  },
-  // Selected work, in this order. Years come from each repo's first commit.
+  // Projects, in this order. Years come from each repo's first commit.
   // `shot` names the screenshot in src/assets/work/ (see Work.tsx); projects
   // without one show a [SCREENSHOT] placeholder. `short` is the word repeated
   // across that project's row of the gallery wall, `code` its card's tag.
@@ -85,25 +75,24 @@ export const site = {
       self: true,
     },
   ],
-  // Experience, in this order. `under` entries sit nested beneath their parent.
-  // `short` is the word repeated across that entry's row of the giant letter
-  // wall; `code` is the little mono tag on its card.
+  // Education, in this order. `under` entries sit nested beneath their parent.
   experience: [
     {
       title: 'Purdue University',
-      short: 'Purdue',
-      code: 'PU',
       caption: 'B.S. Computer Science',
       when: '[GRAD YEAR]',
       line: '',
-      under: [
-        { title: 'The Data Mine', short: 'Data Mine', code: 'DM', caption: 'General cohort', when: '[YEAR]', line: '' },
-      ],
+      under: [{ title: 'The Data Mine', caption: 'General cohort', when: '[YEAR]', line: '' }],
+    },
+    {
+      title: 'North Allegheny Senior High School',
+      caption: '4.38 GPA',
+      when: '[GRAD YEAR]',
+      line: '',
+      under: [],
     },
     {
       title: 'Carnegie Mellon Robotics Academy',
-      short: 'CMU',
-      code: 'CMU',
       caption: 'Robotics apprenticeship',
       when: 'Summer 2024',
       line: 'Built an Arduino robot and programmed its movement and sensor responses in C.',
@@ -111,9 +100,7 @@ export const site = {
     },
   ],
   nav: [
-    { label: 'Work', href: '#work' },
+    { label: 'Projects', href: '#work' },
     { label: 'Education', href: '#experience' },
-    { label: 'About', href: '#about' },
-    { label: 'Contact', href: '#contact' },
   ],
 }

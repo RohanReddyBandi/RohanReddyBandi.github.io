@@ -1,7 +1,0 @@
-<!-- [SIGNATURE] placeholder. Replace this file with the real one. A stroked SVG
-     (paths with stroke, no fill) gets drawn on scroll; a filled outline gets
-     wiped in instead. Colors are overridden to the accent either way. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 170" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M18 128C30 86 52 34 74 28C96 22 104 48 86 64C72 76 52 80 44 78C62 88 84 112 104 126C112 132 120 128 126 118C134 104 148 96 160 102C174 110 168 130 152 130C138 130 140 108 162 104C178 101 188 70 198 38C202 28 206 30 204 44C200 74 192 106 190 128C198 108 214 96 226 104C236 112 230 128 240 128C252 128 258 108 274 106C290 104 288 128 272 128C258 128 264 104 286 106C292 112 290 128 302 126C312 120 318 104 330 104C344 104 340 126 350 126C366 126 380 96 396 96C410 96 402 120 418 122C440 124 470 92 500 76"/>
-  <path d="M40 150C150 138 300 140 470 128C490 126 505 122 512 116"/>
-</svg>

@@ -149,7 +149,7 @@ function WorkRows() {
 
   return (
     <section id="work" className="section" aria-labelledby="work-title">
-      <SectionHead label="Selected work" id="work-title" />
+      <SectionHead label="Projects" id="work-title" />
 
       {/* Before the list on purpose: with no z-index, the rows paint on top,
           so the hovered title reads over the screenshot */}
@@ -313,7 +313,7 @@ function WorkGallery() {
   return (
     <section ref={section} id="work" className="fly-scene" aria-labelledby="work-title">
       <div className="fly-scene__head">
-        <SectionHead label="Selected work" id="work-title" />
+        <SectionHead label="Projects" id="work-title" />
       </div>
 
       <div className="fly-scene__stage">

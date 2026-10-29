@@ -35,14 +35,13 @@ Every push to `main` builds the site and publishes `dist/` to GitHub Pages throu
 
 One-time setup (already done for this repo): **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
-Still to fill in (photo, screenshots, resume, email and so on): see [CHECKLIST.md](CHECKLIST.md).
+Still to fill in (resume, a Duck Days screenshot, a few years): see [CHECKLIST.md](CHECKLIST.md).
 
 ## Where things live
 
 | Path | What |
 | --- | --- |
 | `src/content/site.ts` | All copy and links. Anything in `[BRACKETS]` is a placeholder. |
-| `src/assets/signature.svg` | The signature drawn in About. A stroked SVG draws itself on scroll; a filled outline wipes in. |
 | `src/sections/` | One file per page section |
 | `404.html`, `src/not-found.tsx` | The "Page not found." page GitHub Pages serves for missing URLs |
 | `src/assets/work/` | Project screenshots: `<name>-1600.webp` and `<name>-800.webp`, 16:10 |

@@ -244,12 +244,7 @@
   --shape: 68px;
 }
 
-.cursor[data-mode="copy"] {
-  --shape: 76px;
-}
-
-.cursor[data-mode="open"],
-.cursor[data-mode="big"] {
+.cursor[data-mode="open"] {
   --shape: 96px;
 }
 

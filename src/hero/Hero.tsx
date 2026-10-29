@@ -1,46 +1,52 @@
 import gsap from 'gsap'
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef } from 'react'
 import ScrollCue from '../components/ScrollCue'
 import { site } from '../content/site'
-import { finePointer, reducedMotion } from '../lib/motion'
+import { reducedMotion } from '../lib/motion'
+import { useLetterPush } from '../lib/push'
 import { fontsLoaded, pageReady } from '../lib/sequence'
-import { GlyphField, type Grid } from './GlyphField'
+import { GlyphField } from './GlyphField'
 import './hero.css'
 
 const FLICKER_MS = 260
 
+/** One line of the name, split into words and letters for the push effect */
+function Line({ text }: { text: string }) {
+  return (
+    <span className="hero-name__line">
+      {text.split(' ').map((word, w) => (
+        // the space sits between word boxes: inside one it would be trimmed
+        <Fragment key={w}>
+          {w > 0 && ' '}
+          <span className="hero-name__word">
+            {[...word].map((ch, i) => (
+              <span key={i} className="hero-name__letter" data-push>
+                {ch}
+              </span>
+            ))}
+          </span>
+        </Fragment>
+      ))}
+    </span>
+  )
+}
+
 export default function Hero() {
   const section = useRef<HTMLElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const foot = useRef<HTMLDivElement>(null)
+  const name = useRef<HTMLHeadingElement>(null)
+  useLetterPush(name, section)
 
+  // The glyph field behind the name
   useEffect(() => {
     const el = section.current!
-    const reduced = reducedMotion.matches
-
-    // Where the name goes, in cells: under the top bar, above the footer row,
-    // inside the page gutters. Narrow screens stack it ROHAN / REDDY / BANDI.
-    const layout = ({ cols, cell }: Grid) => {
-      const narrow = cols < 72 || el.clientHeight > el.clientWidth * 1.15
-      const lines = narrow ? [...site.name.first.split(' '), site.name.last] : [site.name.first, site.name.last]
-      const gutter = Math.min(44, Math.max(16, el.clientWidth * 0.032))
-      return {
-        lines: lines.map((l) => l.toUpperCase()),
-        topRows: Math.ceil(96 / cell),
-        bottomRows: Math.ceil((foot.current!.offsetHeight + 24) / cell),
-        margin: Math.round(gutter / cell),
-      }
-    }
-
-    const field = new GlyphField(canvas.current!, layout, reduced)
-    let fontsIn = false
-    const fit = () => fontsIn && field.resize(el.clientWidth, el.clientHeight)
+    const field = new GlyphField(canvas.current!, reducedMotion.matches)
+    let fontIn = false
+    const fit = () => fontIn && field.resize(el.clientWidth, el.clientHeight)
     const resize = new ResizeObserver(fit)
     resize.observe(el)
-    // The name is carved with Clash Display and drawn in JetBrains Mono, so
-    // both have to be in before the first layout
-    Promise.all([fontsLoaded(2500), document.fonts.load('500 12px "JetBrains Mono"')]).then(() => {
-      fontsIn = true
+    document.fonts.load('500 12px "JetBrains Mono"').then(() => {
+      fontIn = true
       fit()
       pageReady.then(() => field.intro())
     })
@@ -88,22 +94,30 @@ export default function Hero() {
     }
   }, [])
 
-  // The footer row rises in as the field resolves
+  // Entrance: the letters rise in, then the tagline and scroll cue. No masks,
+  // so a letter the pointer pushes up never gets clipped.
   useLayoutEffect(() => {
     if (reducedMotion.matches) return
     let cancelled = false
     const ctx = gsap.context(() => {
+      gsap.set('.hero-name__letter', { yPercent: 60, autoAlpha: 0 })
       gsap.set('.reveal-line', { yPercent: 110 })
-      gsap.set(['.scroll-cue', '.hero__hint'], { autoAlpha: 0 })
+      gsap.set('.scroll-cue', { autoAlpha: 0 })
     }, section)
-    pageReady.then(() => {
+    Promise.all([pageReady, fontsLoaded(2500)]).then(() => {
       if (cancelled) return
-      ctx.add(() =>
-        gsap
-          .timeline({ defaults: { ease: 'expo.out' }, delay: 0.6 })
-          .to('.reveal-line', { yPercent: 0, duration: 1.1, stagger: 0.1 })
-          .to(['.hero__hint', '.scroll-cue'], { autoAlpha: 1, duration: 0.8, stagger: 0.1 }, 0.3),
-      )
+      ctx.add(() => {
+        const lines = gsap.utils.toArray<HTMLElement>('.hero-name__line')
+        const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
+        lines.forEach((line, k) =>
+          tl.to(line.querySelectorAll('.hero-name__letter'), { yPercent: 0, autoAlpha: 1, duration: 1.1, stagger: 0.04 }, 0.15 + k * 0.2),
+        )
+        tl.to('.reveal-line', { yPercent: 0, duration: 1.1, stagger: 0.1 }, 0.7).to(
+          '.scroll-cue',
+          { autoAlpha: 1, duration: 0.8, ease: 'power2.out' },
+          1,
+        )
+      })
     })
     return () => {
       cancelled = true
@@ -114,25 +128,30 @@ export default function Hero() {
   return (
     <section ref={section} id="top" className="glyph-hero" aria-labelledby="hero-title">
       <canvas ref={canvas} className="glyph-hero__field" aria-hidden="true" />
-      <h1 id="hero-title" className="sr-only">
-        {site.name.first} {site.name.last}
-      </h1>
 
-      <div ref={foot} className="hero__foot site-grid">
-        <p className="hero__tagline text-lead text-muted">
-          <span className="reveal-mask">
-            <span className="reveal-line">{site.tagline.lead}</span>
-          </span>
-          <span className="reveal-mask">
-            <span className="reveal-line">{site.tagline.rest}</span>
-          </span>
-        </p>
-        {!reducedMotion.matches && (
-          <p className="hero__hint label" aria-hidden="true">
-            {finePointer.matches ? 'Move to scramble · Click to ripple' : 'Tap to ripple'}
-          </p>
-        )}
-        <ScrollCue />
+      <div className="hero__foot site-grid">
+        <div className="hero__stack">
+          <h1 ref={name} id="hero-title" className="hero-name">
+            <span className="sr-only">
+              {site.name.first} {site.name.last}
+            </span>
+            <span aria-hidden="true">
+              <Line text={site.name.first} />
+              <Line text={site.name.last} />
+            </span>
+          </h1>
+          <div className="hero__aside">
+            <p className="hero__tagline text-lead text-muted">
+              <span className="reveal-mask">
+                <span className="reveal-line">{site.tagline.lead}</span>
+              </span>
+              <span className="reveal-mask">
+                <span className="reveal-line">{site.tagline.rest}</span>
+              </span>
+            </p>
+            <ScrollCue />
+          </div>
+        </div>
       </div>
     </section>
   )

@@ -1,35 +1,22 @@
 import gsap from 'gsap'
 import { accentRgba } from '../lib/accent'
 
-// The hero: a full-screen grid of mono glyphs with the name carved out of it.
-// Background cells are faint 0s and 1s, the letters are dense bright glyphs.
-// Moving over it (or tapping) scrambles the cells near the pointer into
+// The hero's backdrop: a full-screen grid of faint mono 0s and 1s. Moving
+// over it (or tapping) scrambles the cells near the pointer into
 // accent-colored noise that settles back; a click sends a ring outward; a few
 // cells flicker on their own. It resolves out of noise when the page loads.
 //
 // Every glyph is pre-rendered once into an atlas, and each frame only redraws
-// the cells that change, so even an ultrawide screen (~16k cells) stays cheap.
+// the cells that change, so even an ultrawide screen stays cheap.
 
 const FIELD = 0
-const EDGE = 1
-const INK = 2
-const HOT = 3
+const HOT = 1
 const BLANK = 255
-const CHARS = ['01', '+=:-', '#%&@$08', '!<>/\\[]{}=+*^?#01']
-// Letters are inverse video: a solid off-white cell with the glyph cut out
-// of it, so the name reads as solid blocks. Edge cells are half-strength.
-const CELL_FILL = ['', 'rgba(237, 237, 232, 0.42)', '#edede8', '']
-const GLYPH_COLOR = ['rgba(237, 237, 232, 0.13)', 'rgba(11, 11, 12, 0.55)', 'rgba(11, 11, 12, 0.72)', '']
-
-const LINE_HEIGHT = 0.86 // of the font size, for the carved name
-const TRACKING = -0.035 // em, same as the name used to have
-const SAMPLES = 4 // mask resolution per cell, for smooth letter edges
+const CHARS = ['01', '!<>/\\[]{}=+*^?#01']
+const DENSITY = 0.55 // share of cells that hold a glyph
 const RESOLVE_MS = 1300
 const HOT_WINDOW = 140 // ms a cell spends as noise before it settles
 const ROLL_MS = 55 // noise re-rolls this often
-
-export type Grid = { cols: number; rows: number; cell: number }
-export type Layout = { lines: string[]; topRows: number; bottomRows: number; margin: number }
 
 export class GlyphField {
   private canvas: HTMLCanvasElement
@@ -52,17 +39,15 @@ export class GlyphField {
   private running = false
   private visible = true
   private ready = false
-  readonly reduced: boolean
-  private layout: (grid: Grid) => Layout
+  private reduced: boolean
 
-  constructor(canvas: HTMLCanvasElement, layout: (grid: Grid) => Layout, reduced: boolean) {
+  constructor(canvas: HTMLCanvasElement, reduced: boolean) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')!
-    this.layout = layout
     this.reduced = reduced
   }
 
-  /** Rebuild the grid for a new size. Call after fonts are in. */
+  /** Rebuild the grid for a new size. Call once the mono font is in. */
   resize(width: number, height: number) {
     if (!width || !height) return
     this.dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -81,8 +66,11 @@ export class GlyphField {
     this.nextRoll = new Float64Array(n)
     this.shown = new Uint8Array(n)
     this.active.clear()
+    for (let i = 0; i < n; i++) {
+      this.style[i] = Math.random() < DENSITY ? FIELD : BLANK
+      this.glyph[i] = (Math.random() * 2) | 0
+    }
     this.buildAtlas()
-    this.carve()
     this.ready = true
 
     if (this.reduced || this.introStart >= 0) {
@@ -97,8 +85,7 @@ export class GlyphField {
 
   /** Resolve out of noise, from the middle outward. */
   intro() {
-    if (!this.ready || this.introStart >= 0) return
-    if (this.reduced) return
+    if (!this.ready || this.introStart >= 0 || this.reduced) return
     const cx = this.cols / 2
     const cy = this.rows / 2
     const far = Math.hypot(cx, cy)
@@ -254,69 +241,18 @@ export class GlyphField {
     this.ctx.drawImage(this.atlas, glyph * s, style * s, s, s, x, y, s, s)
   }
 
-  // Every glyph in every color, one cell each
+  // Every glyph in both colors, one cell each
   private buildAtlas() {
     const s = this.cell * this.dpr
-    const widest = Math.max(...CHARS.map((c) => c.length))
-    this.atlas.width = widest * s
+    this.atlas.width = Math.max(...CHARS.map((c) => c.length)) * s
     this.atlas.height = CHARS.length * s
     const a = this.atlas.getContext('2d')!
     a.font = `500 ${Math.round(s * 0.86)}px "JetBrains Mono", ui-monospace, monospace`
     a.textAlign = 'center'
     a.textBaseline = 'middle'
     CHARS.forEach((chars, row) => {
-      ;[...chars].forEach((ch, col) => {
-        if (CELL_FILL[row]) {
-          a.fillStyle = CELL_FILL[row]
-          a.fillRect(col * s, row * s, s, s)
-        }
-        a.fillStyle = row === HOT ? accentRgba(1) : GLYPH_COLOR[row]
-        a.fillText(ch, col * s + s / 2, row * s + s / 2 + s * 0.04)
-      })
+      a.fillStyle = row === HOT ? accentRgba(1) : 'rgba(237, 237, 232, 0.13)'
+      ;[...chars].forEach((ch, col) => a.fillText(ch, col * s + s / 2, row * s + s / 2 + s * 0.04))
     })
-  }
-
-  // Draw the name into a fine mask, then give each cell a style by how much
-  // of it the letters cover
-  private carve() {
-    const { lines, topRows, bottomRows, margin } = this.layout({ cols: this.cols, rows: this.rows, cell: this.cell })
-    const S = SAMPLES
-    const mask = document.createElement('canvas')
-    mask.width = this.cols * S
-    mask.height = this.rows * S
-    const m = mask.getContext('2d', { willReadFrequently: true })!
-    m.fillStyle = '#000'
-    m.textBaseline = 'alphabetic'
-    const setFont = (px: number) => {
-      m.font = `600 ${px}px "Clash Display", sans-serif`
-      if ('letterSpacing' in m) m.letterSpacing = `${(px * TRACKING).toFixed(2)}px`
-    }
-
-    // size the name to the free width, capped by the free height
-    setFont(100)
-    const widest = Math.max(...lines.map((l) => m.measureText(l).width))
-    const freeW = (this.cols - margin * 2) * S
-    const freeH = (this.rows - topRows - bottomRows) * S
-    const px = Math.min((100 * freeW) / widest, freeH / (lines.length * LINE_HEIGHT))
-    setFont(px)
-    const block = lines.length * px * LINE_HEIGHT
-    const top = topRows * S + (freeH - block) / 2
-    lines.forEach((line, k) => m.fillText(line, margin * S, top + px * (LINE_HEIGHT * k + 0.74)))
-
-    const data = m.getImageData(0, 0, mask.width, mask.height).data
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        let cover = 0
-        for (let sy = 0; sy < S; sy++) {
-          const row = ((y * S + sy) * mask.width + x * S) * 4 + 3
-          for (let sx = 0; sx < S; sx++) cover += data[row + sx * 4]
-        }
-        cover /= 255 * S * S
-        const i = y * this.cols + x
-        const style = cover > 0.5 ? INK : cover > 0.14 ? EDGE : Math.random() < 0.55 ? FIELD : BLANK
-        this.style[i] = style
-        this.glyph[i] = style === BLANK ? 0 : (Math.random() * CHARS[style].length) | 0
-      }
-    }
   }
 }

@@ -4,7 +4,7 @@ import Magnetic from './Magnetic'
 export default function ScrollCue() {
   return (
     <Magnetic className="scroll-cue">
-      <a href="#about" className="scroll-cue__link label" aria-label="Scroll to the next section">
+      <a href="#work" className="scroll-cue__link label" aria-label="Scroll to the next section">
         <span>Scroll</span>
         <span className="scroll-cue__track" aria-hidden="true">
           <span className="scroll-cue__bead" />
