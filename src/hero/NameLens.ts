@@ -3,10 +3,10 @@ import { accentRgba } from '../lib/accent'
 
 // The hero name's x-ray: a soft round lens that drifts across the name, or
 // follows the pointer, and shows the letters inside it as green wavy lines,
-// magnified toward its center. The solid name is masked out under the lens
-// in CSS (--lx, --ly, --lr on the h1, see hero.css); this canvas draws what's
-// underneath. Pauses off screen and in background tabs. Not used with
-// reduced motion.
+// magnified toward its center. The canvas sits over the name and, inside the
+// lens, covers each letter in the background color before drawing its lines,
+// so the page itself never repaints: each frame is canvas work only. Pauses
+// off screen and in background tabs. Not used with reduced motion.
 
 const SPACING = 4 // px between lines
 const STEP = 8 // px between points along a line
@@ -33,10 +33,9 @@ export class NameLens {
   private scratch = document.createElement('canvas')
   private sctx = this.scratch.getContext('2d')!
   private w = 0
-  private h = 0
   private dpr = 1
-  private nameX = 0
-  private nameY = 0
+  private bg = '#0b0b0c'
+  private drawn: { x: number; y: number; s: number } | null = null // last lens square, to clear
   private box = { x: 0, y: 0, w: 0, h: 0 } // the name's bounds
   private r = 0 // full lens radius
   private lx = 0
@@ -65,16 +64,14 @@ export class NameLens {
     if (!w || !h || !letters.length) return
     this.dpr = Math.min(window.devicePixelRatio || 1, 2)
     this.w = w
-    this.h = h
     for (const c of [this.canvas, this.glyphs]) {
       c.width = Math.round(w * this.dpr)
       c.height = Math.round(h * this.dpr)
     }
     this.canvas.style.width = `${w}px`
     this.canvas.style.height = `${h}px`
-    const at = offsetIn(this.name, hero)
-    this.nameX = at.x
-    this.nameY = at.y
+    this.drawn = null // resizing cleared the canvas
+    this.bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0b0b0c'
 
     const size = parseFloat(getComputedStyle(letters[0]).fontSize)
     const g = this.gctx
@@ -87,7 +84,16 @@ export class NameLens {
     const m = g.measureText('R')
     const drop = (m.fontBoundingBoxAscent - m.fontBoundingBoxDescent) / 2
     const pos = letters.map((l) => offsetIn(l, hero))
-    letters.forEach((l, i) => g.fillText((l.textContent ?? '').toUpperCase(), pos[i].x, pos[i].y + l.offsetHeight / 2 + drop))
+    // a hair bigger than the letters, so their antialiased edges stay covered
+    g.strokeStyle = '#fff'
+    g.lineWidth = 1.5
+    g.lineJoin = 'round'
+    letters.forEach((l, i) => {
+      const ch = (l.textContent ?? '').toUpperCase()
+      const y = pos[i].y + l.offsetHeight / 2 + drop
+      g.fillText(ch, pos[i].x, y)
+      g.strokeText(ch, pos[i].x, y)
+    })
 
     const left = Math.min(...pos.map((p) => p.x))
     const top = Math.min(...pos.map((p) => p.y))
@@ -119,13 +125,11 @@ export class NameLens {
 
   start() {
     this.started = true
-    this.name.dataset.lens = ''
     this.wake()
   }
 
   destroy() {
     gsap.ticker.remove(this.tick)
-    delete this.name.dataset.lens
   }
 
   private wake() {
@@ -171,14 +175,13 @@ export class NameLens {
   }
 
   private draw() {
-    const { ctx, sctx, dpr, w, h, lx, ly } = this
+    const { ctx, sctx, dpr, w, lx, ly } = this
     if (!w) return
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, w, h)
+    // only where the lens was last frame needs clearing
+    if (this.drawn) ctx.clearRect(this.drawn.x, this.drawn.y, this.drawn.s, this.drawn.s)
+    this.drawn = null
     const R = this.r * this.grow
-    this.name.style.setProperty('--lx', `${(lx - this.nameX).toFixed(1)}px`)
-    this.name.style.setProperty('--ly', `${(ly - this.nameY).toFixed(1)}px`)
-    this.name.style.setProperty('--lr', `${R.toFixed(1)}px`)
     if (!this.started || R < 1) return
 
     const side = Math.ceil(R * 2 * dpr)
@@ -188,6 +191,12 @@ export class NameLens {
     sctx.globalCompositeOperation = 'source-over'
     sctx.clearRect(lx - R, ly - R, R * 2, R * 2)
 
+    // the letters under the lens, in the background color, to cover the name
+    sctx.drawImage(this.glyphs, (lx - R) * dpr, (ly - R) * dpr, R * 2 * dpr, R * 2 * dpr, lx - R, ly - R, R * 2, R * 2)
+    sctx.globalCompositeOperation = 'source-in'
+    sctx.fillStyle = this.bg
+    sctx.fillRect(lx - R, ly - R, R * 2, R * 2)
+
     // lines on a fixed grid, so the lens moves over them
     sctx.beginPath()
     for (let x = Math.floor((lx - R - 48) / SPACING) * SPACING; x < lx + R + 48; x += SPACING) {
@@ -195,21 +204,18 @@ export class NameLens {
       sctx.moveTo(x + this.offset(x, y0), y0)
       for (let y = y0 + STEP; y < ly + R + STEP; y += STEP) sctx.lineTo(x + this.offset(x, y), y)
     }
+    // bright on the letters
+    sctx.globalCompositeOperation = 'source-atop'
     sctx.lineWidth = 1.4
     sctx.strokeStyle = accentRgba(1)
     sctx.stroke()
-    // keep them only inside the letters
-    sctx.globalCompositeOperation = 'destination-in'
-    const sx = (lx - R) * dpr
-    const sy = (ly - R) * dpr
-    sctx.drawImage(this.glyphs, sx, sy, R * 2 * dpr, R * 2 * dpr, lx - R, ly - R, R * 2, R * 2)
-    // and faintly everywhere else
+    // and faint everywhere else
     sctx.globalCompositeOperation = 'destination-over'
     sctx.lineWidth = 1
     sctx.strokeStyle = accentRgba(0.16)
     sctx.stroke()
-    // cut to a round lens with a soft edge (the CSS mask fades the solid
-    // name in over the same band)
+    // cut to a round lens with a soft edge, where the solid name shows back
+    // through
     sctx.globalCompositeOperation = 'destination-in'
     const edge = sctx.createRadialGradient(lx, ly, 0, lx, ly, R)
     edge.addColorStop(0.55, '#000')
@@ -219,5 +225,6 @@ export class NameLens {
     sctx.globalCompositeOperation = 'source-over'
 
     ctx.drawImage(this.scratch, 0, 0, R * 2 * dpr, R * 2 * dpr, lx - R, ly - R, R * 2, R * 2)
+    this.drawn = { x: lx - R - 2, y: ly - R - 2, s: R * 2 + 4 }
   }
 }

@@ -45,8 +45,9 @@ type Layout = {
   wide: boolean
 }
 
-/** Copies needed per row to cover the screen while rows loop sideways */
-const copiesFor = (w: number, h: number) => Math.ceil(w / ((h * 1.04) / R * 0.92)) + 4
+/** Copies needed per row to cover the screen while rows loop sideways. A
+ *  tab that loads in the background can report a 0×0 window, so fall back. */
+const copiesFor = (w: number, h: number) => (w > 0 && h > 0 ? Math.ceil(w / ((h * 1.04) / R * 0.92)) + 4 : 24)
 
 /** Tanker's cap height and where its caps sit inside a line-height: 1 box */
 function measureTanker() {
@@ -160,6 +161,8 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
     let alive = true
     const measure = () => {
       if (!alive || !inner.current) return
+      // nothing to lay out until the window has a size
+      if (!inner.current.clientWidth || !inner.current.clientHeight) return
       const next = computeLayout(inner.current)
       setLayout(next)
       setCopies((c) => Math.max(c, next.k))
@@ -224,6 +227,7 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
         const drift = (r % 2 ? 1 : -1) * (m * 2.4 + p * 0.6) * L.pitch * 1.3
         for (let i = 0; i < L.k; i++) {
           const l = row[i]
+          if (!l) break
           // x on the wall: evenly spaced, wrapped so the row never runs out
           let x = (((i * L.pitch + drift) % loop) + loop) % loop - loop / 2
           x *= fan

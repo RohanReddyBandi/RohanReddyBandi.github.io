@@ -6,17 +6,21 @@ import gsap from 'gsap'
 // chunky pixel blocks, rows torn sideways, the channels split apart along the
 // flow, scanlines and the odd white block, re-rolled ~14 times a second. The
 // canvas blends with `difference`, so wherever the smoke goes the page under
-// it inverts (green on black, magenta over light text). Runs only while
-// there's smoke; returns null where WebGL2 can't render to float textures.
+// it inverts (green on black, magenta over light text). Kept cheap: small
+// grids, all of a frame's splats in one pass, and the broken look drawn at
+// half resolution (it's blocky anyway). Runs only while there's smoke;
+// returns null where WebGL2 can't render to float textures.
 
-const SIM = 128 // velocity grid, short side
-const DYE = 320 // smoke grid, short side
-const RADIUS = 22 // splat radius, CSS px
-const FORCE = 5 // pointer px → velocity
-const JACOBI = 12 // pressure iterations
-const VEL_KEEP = 0.98 // velocity kept per frame (at 60fps)
-const DYE_KEEP = 0.965 // smoke kept per frame
-const IDLE = 2.5 // s without input before it stops
+const SIM = 80 // velocity grid, short side
+const DYE = 160 // smoke grid, short side
+const RES = 0.5 // canvas pixels per CSS pixel
+const RADIUS = 20 // splat radius, CSS px
+const FORCE = 3 // pointer px → velocity: enough to curl, not to fling
+const JACOBI = 8 // pressure iterations
+const VEL_KEEP = 0.96 // velocity kept per frame (at 60fps)
+const DYE_KEEP = 0.96 // smoke kept per frame: a short trail
+const IDLE = 1.5 // s without input before it stops
+const MAX_SPLATS = 16 // per frame, one pass (matches the shader's arrays)
 
 const VERT = `#version 300 es
 in vec2 aPos;
@@ -33,16 +37,23 @@ in vec2 vUv;
 out vec4 o;
 ${body}`
 
+// Every splat this frame in one pass
 const SPLAT = frag(`
 uniform sampler2D uTarget;
 uniform float uAspect;
-uniform vec2 uPoint;
-uniform vec3 uValue;
 uniform float uRadius;
+uniform int uCount;
+uniform vec2 uPoints[${MAX_SPLATS}];
+uniform vec3 uValues[${MAX_SPLATS}];
 void main() {
-  vec2 p = vUv - uPoint;
-  p.x *= uAspect;
-  o = vec4(texture(uTarget, vUv).xyz + exp(-dot(p, p) / uRadius) * uValue, 1.0);
+  vec3 add = vec3(0.0);
+  for (int i = 0; i < ${MAX_SPLATS}; i++) {
+    if (i >= uCount) break;
+    vec2 p = vUv - uPoints[i];
+    p.x *= uAspect;
+    add += exp(-dot(p, p) / uRadius) * uValues[i];
+  }
+  o = vec4(texture(uTarget, vUv).xyz + add, 1.0);
 }`)
 
 const ADVECT = frag(`
@@ -99,8 +110,9 @@ void main() {
   o = vec4(texture(uVelocity, vUv).xy - vec2(r - l, t - b), 0.0, 1.0);
 }`)
 
-// The broken look. Everything is in canvas pixels, keyed to uTick (a whole
-// number that steps ~14 times a second) so the glitch jumps, not drifts.
+// The broken look. Everything is in canvas pixels (half CSS pixels), keyed
+// to uTick (a whole number that steps ~14 times a second) so the glitch
+// jumps, not drifts.
 const DISPLAY = frag(`
 uniform sampler2D uDye;
 uniform sampler2D uVelocity;
@@ -113,23 +125,23 @@ void main() {
   vec2 px = vUv * uRes;
   float here = texture(uDye, vUv).x;
   // rows torn sideways, only where there's smoke
-  float bandH = 6.0 + floor(26.0 * hash(vec2(uTick, 1.3)));
+  float bandH = 3.0 + floor(13.0 * hash(vec2(uTick, 1.3)));
   float band = floor(px.y / bandH);
   float tear = (hash(vec2(band, uTick)) - 0.5) * 2.0 * step(0.55, hash(vec2(band, uTick + 9.1)));
-  px.x += tear * 38.0 * smoothstep(0.06, 0.5, here);
+  px.x += tear * 19.0 * smoothstep(0.06, 0.5, here);
   // chunky blocks, a different size in each patch
-  float area = hash(floor(px / 96.0) + uTick * 0.37);
-  float size = floor(mix(3.0, 13.0, area));
+  float area = hash(floor(px / 48.0) + uTick * 0.37);
+  float size = floor(mix(2.0, 7.0, area));
   vec2 uv = (floor(px / size) + 0.5) * size / uRes;
   // channels pulled apart along the flow
-  vec2 flow = clamp(texture(uVelocity, uv).xy * 0.04, -10.0, 10.0);
-  vec2 split = (vec2(3.0, 0.0) + flow) / uRes;
+  vec2 flow = clamp(texture(uVelocity, uv).xy * 0.02, -5.0, 5.0);
+  vec2 split = (vec2(1.5, 0.0) + flow) / uRes;
   float r = level(texture(uDye, uv + split).x);
   float g = level(texture(uDye, uv).x);
   float b = level(texture(uDye, uv - split).x);
   vec3 c = uBrand * g + vec3(1.0, 0.1, 0.35) * max(r - g, 0.0) + vec3(0.2, 0.5, 1.0) * max(b - g, 0.0);
   // the odd block flashes white
-  c = mix(c, vec3(1.0), step(0.985, hash(floor(px / 8.0) + uTick * 1.7)) * step(0.2, g));
+  c = mix(c, vec3(1.0), step(0.985, hash(floor(px / 4.0) + uTick * 1.7)) * step(0.2, g));
   // scanlines
   c *= 0.75 + 0.25 * mod(floor(px.y), 2.0);
   o = vec4(c, max(max(c.r, c.g), c.b));
@@ -150,6 +162,8 @@ export class GlitchSmoke {
   private pressure?: Double
   private divergence?: Target
   private queue: { x: number; y: number; dx: number; dy: number; amount: number }[] = []
+  private points = new Float32Array(MAX_SPLATS * 2)
+  private values = new Float32Array(MAX_SPLATS * 3)
   private last: { x: number; y: number } | null = null
   private running = false
   private idle = 0
@@ -191,9 +205,8 @@ export class GlitchSmoke {
   resize() {
     const w = window.innerWidth
     const h = window.innerHeight
-    // one canvas pixel per CSS pixel: the look is blocky anyway
-    this.canvas.width = w
-    this.canvas.height = h
+    this.canvas.width = Math.ceil(w * RES)
+    this.canvas.height = Math.ceil(h * RES)
     const grid = (short: number) => (w < h ? [short, Math.round((short * h) / w)] : [Math.round((short * w) / h), short])
     const [sw, sh] = grid(SIM)
     const [dw, dh] = grid(DYE)
@@ -215,7 +228,7 @@ export class GlitchSmoke {
     const dist = Math.hypot(dx, dy)
     if (!dist) return
     // fast moves get in-between splats so the trail doesn't break up
-    const steps = Math.min(8, Math.ceil(dist / (RADIUS * 0.7)))
+    const steps = Math.min(4, Math.ceil(dist / RADIUS))
     const amount = 0.28 + Math.min(dist / 60, 1) * 0.32
     for (let i = 1; i <= steps; i++) {
       const k = i / steps
@@ -270,10 +283,20 @@ export class GlitchSmoke {
     const aspect = w / h
     const radius = (RADIUS / h) ** 2
 
-    for (const s of this.queue.splice(0)) {
-      const point: [number, number] = [s.x / w, 1 - s.y / h]
-      this.splat(velocity, point, [s.dx * FORCE, -s.dy * FORCE, 0], radius, aspect)
-      this.splat(dye, point, [s.amount, 0, 0], radius, aspect)
+    // this frame's splats (at most MAX_SPLATS, spread over the stroke)
+    const queued = this.queue.splice(0)
+    const count = Math.min(queued.length, MAX_SPLATS)
+    if (count) {
+      const pick = (i: number) => queued[Math.round((i * (queued.length - 1)) / Math.max(1, count - 1))]
+      const thin = queued.length / count // fewer splats each carry more
+      for (let i = 0; i < count; i++) {
+        const s = pick(i)
+        this.points.set([s.x / w, 1 - s.y / h], i * 2)
+        this.values.set([s.dx * FORCE * thin, -s.dy * FORCE * thin, 0], i * 3)
+      }
+      this.splat(velocity, count, radius, aspect)
+      for (let i = 0; i < count; i++) this.values.set([pick(i).amount, 0, 0], i * 3)
+      this.splat(dye, count, radius, aspect)
     }
 
     const texel = [1 / velocity.read.w, 1 / velocity.read.h]
@@ -320,14 +343,16 @@ export class GlitchSmoke {
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
-  private splat(target: Double, point: [number, number], value: number[], radius: number, aspect: number) {
-    this.pass(this.programs.splat, target.write, {
-      uTarget: target.read,
-      uPoint: point,
-      uValue: value,
-      uRadius: radius,
-      uAspect: aspect,
-    })
+  private splat(target: Double, count: number, radius: number, aspect: number) {
+    const gl = this.gl
+    const { u } = this.programs.splat
+    gl.bindFramebuffer(gl.FRAMEBUFFER, target.write.fbo)
+    gl.viewport(0, 0, target.write.w, target.write.h)
+    this.bind(this.programs.splat, { uTarget: target.read, uRadius: radius, uAspect: aspect })
+    gl.uniform1i(u.uCount, count)
+    gl.uniform2fv(u['uPoints[0]'], this.points)
+    gl.uniform3fv(u['uValues[0]'], this.values)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
     target.swap()
   }
 

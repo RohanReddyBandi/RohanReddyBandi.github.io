@@ -15,6 +15,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  /* over the name: inside the lens it covers the letters and draws them */
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -51,16 +53,6 @@
   text-transform: uppercase;
 }
 
-/* Under the lens the solid name fades out, so the canvas's lines show. Only
-   once the lens is on (after the entrance, which a mask would clip). */
-.hero-name[data-lens] {
-  --lx: -999px;
-  --ly: -999px;
-  --lr: 0px;
-  -webkit-mask-image: radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.55), #000 var(--lr));
-  mask-image: radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.55), #000 var(--lr));
-}
-
 .hero-name__line {
   display: block;
   white-space: nowrap;
@@ -72,10 +64,6 @@
 .hero-name__word,
 .hero-name__letter {
   display: inline-block;
-}
-
-.hero-name__letter {
-  will-change: transform;
 }
 
 @media (width < 48rem) {
