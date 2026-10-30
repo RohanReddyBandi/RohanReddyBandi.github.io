@@ -1,6 +1,6 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useEffect, useLayoutEffect, useRef, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import SectionHead from '../components/SectionHead'
 import { site } from '../content/site'
 import { reducedMotion, scrollToY } from '../lib/motion'
@@ -185,23 +185,35 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
 // Fast in, lingers in the middle (so the card can be read), fast out
 const linger = (t: number) => 0.5 + 4 * (t - 0.5) ** 3
 const pad = (n: number) => String(n).padStart(2, '0')
-// Enough repeats that a row still covers ultrawide screens while it slides
-const repeatsFor = (word: string) => Math.max(5, Math.ceil(34 / (word.length + 1)))
+// The wall spells PROJECTS down the screen, one letter per row, each letter
+// repeated across it (after wodniack.dev's WORK wall)
+const WORD = 'Projects'
+const ROW_EM = 0.84 // line height; keep in sync with .fly-wall in sections.css
+const LETTER_EM = 1.05 // a letter plus its gap, roughly
+// Enough repeats that a row still covers the screen while it slides (rows
+// move up to 38% of their width)
+const repeatsFor = (w: number, h: number) => {
+  const size = (1.1 * h) / (WORD.length * ROW_EM)
+  return Math.min(40, Math.max(8, Math.ceil((1.75 * w) / (size * LETTER_EM)) + 2))
+}
 
 function Wall() {
+  // grows (never shrinks) when the window gets wider
+  const [repeats, setRepeats] = useState(() => repeatsFor(innerWidth, innerHeight))
+  useEffect(() => {
+    const grow = () => setRepeats((r) => Math.max(r, repeatsFor(innerWidth, innerHeight)))
+    window.addEventListener('resize', grow)
+    return () => window.removeEventListener('resize', grow)
+  }, [])
+
   return (
     <div className="fly-wall" aria-hidden="true">
-      {site.work.map((p, r) => (
-        <div key={p.title} className="fly-wall__row">
+      {[...WORD].map((ch, r) => (
+        <div key={r} className="fly-wall__row">
           <div className="fly-wall__track">
-            {Array.from({ length: repeatsFor(p.short) }, (_, i) => (
-              <span key={i} className="fly-wall__word">
-                {[...p.short].map((ch, j) => (
-                  <span key={j} className="fly-wall__letter">
-                    {ch === ' ' ? '\u00a0' : ch}
-                  </span>
-                ))}
-                <span className="fly-wall__sep">{r % 2 ? '✦' : '·'}</span>
+            {Array.from({ length: repeats }, (_, i) => (
+              <span key={i} className="fly-wall__letter">
+                {ch}
               </span>
             ))}
           </div>
@@ -235,16 +247,24 @@ function WorkGallery() {
     const el = section.current!
     const ctx = gsap.context(() => {
       const wall = el.querySelector<HTMLElement>('.fly-wall')!
-      const tracks = gsap.utils.toArray<HTMLElement>('.fly-wall__track')
       const cards = gsap.utils.toArray<HTMLElement>('.fly-card')
-      // Every letter wobbles on its own on wider screens; on phones whole
-      // words do, to keep the number of moving 3D layers down
-      const wide = window.matchMedia('(min-width: 48rem)').matches
-      const pieces = tracks.map((t) => [...t.querySelectorAll<HTMLElement>(wide ? '.fly-wall__letter' : '.fly-wall__word')])
-      // cards drift off to the sides on wide screens, stay centered on phones
-      const spread = wide ? 1 : 0.15
       const units = n + CARD_SPAN - 1
       let shown = 0
+      let wide = true
+      let spread = 1
+      let tracks: HTMLElement[] = []
+      let pieces: HTMLElement[][] = []
+
+      // Every letter wobbles on its own. Re-collected on refresh, since the
+      // rows gain letters when the window gets wider.
+      const collect = () => {
+        wide = window.matchMedia('(min-width: 48rem)').matches
+        // cards drift off to the sides on wide screens, stay centered on phones
+        spread = wide ? 1 : 0.15
+        tracks = gsap.utils.toArray<HTMLElement>('.fly-wall__track')
+        pieces = tracks.map((t) => [...t.querySelectorAll<HTMLElement>('.fly-wall__letter')])
+      }
+      collect()
 
       const render = (p: number) => {
         // the whole wall turns a little, like a camera drifting past it
@@ -254,7 +274,7 @@ function WorkGallery() {
           const x = r % 2 ? lerp(-38, -12, p) : lerp(-12, -38, p)
           track.style.transform = `translate3d(${x}%, 0, 0)`
           pieces[r].forEach((piece, i) => {
-            const a = p * Math.PI * 4 + i * (wide ? 0.5 : 1.1) + r * 1.7
+            const a = p * Math.PI * 4 + i * 0.7 + r * 1.3
             const s = Math.sin(a)
             piece.style.transform = `translateZ(${(s * 60).toFixed(1)}px) rotateY(${(s * 28).toFixed(1)}deg) rotateZ(${(Math.cos(a * 0.8) * 5).toFixed(1)}deg)`
           })
@@ -295,7 +315,10 @@ function WorkGallery() {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => render(self.progress),
-        onRefresh: (self) => render(self.progress),
+        onRefresh: (self) => {
+          collect()
+          render(self.progress)
+        },
       })
       render(0)
 
@@ -312,10 +335,6 @@ function WorkGallery() {
 
   return (
     <section ref={section} id="work" className="fly-scene" aria-labelledby="work-title">
-      <div className="fly-scene__head">
-        <SectionHead label="Projects" id="work-title" />
-      </div>
-
       <div className="fly-scene__stage">
         <Wall />
         <ol className="fly-cards">
@@ -349,11 +368,17 @@ function WorkGallery() {
         </ol>
       </div>
 
-      <div className="fly-scene__foot site-grid" aria-hidden="true">
-        <span ref={count} className="label col-span-2">
-          01 / {pad(n)}
-        </span>
-        <span className="label col-span-2 justify-self-end md:col-span-4 md:col-start-9">Keep scrolling</span>
+      {/* The wall fills the whole screen; just two small tags sit on it */}
+      <div className="fly-scene__tags">
+        <h2 id="work-title" className="fly-scene__tag label">
+          Projects
+          <span ref={count} aria-hidden="true">
+            01 / {pad(n)}
+          </span>
+        </h2>
+        <p className="fly-scene__tag label" aria-hidden="true">
+          Keep scrolling
+        </p>
       </div>
     </section>
   )

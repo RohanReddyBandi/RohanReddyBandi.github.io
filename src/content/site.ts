@@ -15,8 +15,7 @@ export const site = {
   },
   // Projects, in this order. Years come from each repo's first commit.
   // `shot` names the screenshot in src/assets/work/ (see Work.tsx); projects
-  // without one show a [SCREENSHOT] placeholder. `short` is the word repeated
-  // across that project's row of the gallery wall, `code` its card's tag.
+  // without one show a [SCREENSHOT] placeholder. `code` is its card's tag.
   work: [
     {
       title: 'Duck Days',
@@ -27,7 +26,6 @@ export const site = {
       href: 'https://apps.apple.com/us/app/duckdays/id6808773849',
       linkLabel: 'App Store',
       shot: 'duck-days',
-      short: 'Duck Days',
       code: 'DD',
       self: false,
     },
@@ -41,7 +39,6 @@ export const site = {
       href: 'https://tradr-ebon.vercel.app/',
       linkLabel: 'Live site',
       shot: 'tradr',
-      short: 'TRADR',
       code: 'TR',
       self: false,
     },
@@ -55,7 +52,6 @@ export const site = {
       href: 'https://compoundgrowth.vercel.app/',
       linkLabel: 'Live site',
       shot: 'compound-growth',
-      short: 'Compound',
       code: 'CG',
       self: false,
     },
@@ -69,7 +65,6 @@ export const site = {
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
       linkLabel: 'Source on GitHub',
       shot: 'this-website',
-      short: 'You Are Here',
       code: 'YOU',
       // The finale card: build facts and the site-inside-itself screenshot
       self: true,

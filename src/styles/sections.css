@@ -347,8 +347,6 @@
 
 .fly-scene {
   position: relative;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
   height: 100svh;
   min-height: 560px;
   overflow: hidden;
@@ -357,39 +355,25 @@
     var(--bg);
 }
 
-.fly-scene__head,
-.fly-scene__foot {
-  position: relative;
-  z-index: 2;
-  background: var(--bg);
-}
-
-.fly-scene__head {
-  padding-block: clamp(5.5rem, 12svh, 7.5rem) clamp(1rem, 3svh, 2rem);
-}
-
-.fly-scene__foot {
-  align-items: center;
-  padding-block: clamp(0.9rem, 2.4svh, 1.5rem);
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-}
-
+/* The 3D stage is the whole screen */
 .fly-scene__stage {
-  position: relative;
+  position: absolute;
+  inset: 0;
   perspective: 1100px;
   perspective-origin: 50% 45%;
 }
 
+/* The wall overshoots the screen a little so its tilt never shows an edge.
+   Rows are sized so the eight of PROJECTS fill the height. */
 .fly-wall {
   position: absolute;
-  inset: 0;
+  inset: -5% -4%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: clamp(3.5rem, min(14svh, 15vw), 11rem);
+  font-size: calc(110svh / 6.72); /* 8 rows × 0.84 line height */
   font-weight: 600;
   line-height: 0.84;
   letter-spacing: -0.02em;
@@ -398,9 +382,40 @@
   will-change: transform;
 }
 
+/* A darker copy of each letter, offset down and right, for the extruded,
+   stacked-type look */
+.fly-wall__letter {
+  text-shadow:
+    0.022em 0.03em 0 color-mix(in srgb, var(--accent) 34%, var(--bg)),
+    0.044em 0.06em 0 color-mix(in srgb, var(--accent) 14%, var(--bg));
+}
+
+/* Small tags pinned to the bottom corners, on top of the wall */
+.fly-scene__tags {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 var(--gutter) clamp(1rem, 3svh, 1.75rem);
+  pointer-events: none;
+}
+
+.fly-scene__tag {
+  display: flex;
+  gap: 1.25rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.fly-scene__tag + .fly-scene__tag {
+  color: var(--muted);
+}
+
 .fly-wall__row,
-.fly-wall__track,
-.fly-wall__word {
+.fly-wall__track {
   transform-style: preserve-3d;
 }
 
@@ -408,32 +423,16 @@
   white-space: nowrap;
 }
 
-/* Portrait (phones): smaller rows, so all four fit with room */
-@media (max-aspect-ratio: 4/5) {
-  .fly-wall {
-    font-size: min(9svh, 21vw);
-  }
-}
+
 
 .fly-wall__track {
   display: inline-flex;
   will-change: transform;
 }
 
-.fly-wall__word {
-  display: inline-flex;
-  align-items: center;
-}
-
 .fly-wall__letter {
   display: inline-block;
-}
-
-.fly-wall__sep {
-  padding-inline: 0.22em;
-  color: var(--fg);
-  font-size: 0.32em;
-  opacity: 0.55;
+  padding-inline: 0.2em;
 }
 
 /* The cards get their own 3D layer over the wall (not the wall's): that
