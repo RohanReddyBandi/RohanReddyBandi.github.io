@@ -1,6 +1,6 @@
 import gsap from 'gsap'
 
-// The hero's backdrop on solid red: a field of thin vertical lines, warped by
+// The hero's backdrop on solid green: a field of thin vertical lines, warped by
 // a slow travelling wave so they bunch into folds like fabric, and pushed
 // apart around the pointer. Lines fade out toward `bottom` (where the name
 // sits). Pauses off screen and in background tabs; one still frame with
@@ -8,7 +8,7 @@ import gsap from 'gsap'
 
 const SPACING = 9 // px between lines
 const STEP = 14 // px between points along a line
-const INK = '23, 1, 3' // --deep as rgb
+const INK = '2, 23, 10' // --deep as rgb
 const FADE = 140 // px the lines fade over above `bottom`
 
 export class LineField {

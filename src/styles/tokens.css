@@ -12,11 +12,12 @@
   --fg: #edede8;
   --muted: #8a8a85;
   --line: rgb(237 237 232 / 0.12);
-  --red: #f4143c;
-  --accent: var(--red);
-  /* the Projects scene: deep maroon ground, dark red letter shadows */
-  --deep: #170103;
-  --shadow: #5c000c;
+  --brand: #2bef6a;
+  --accent: var(--brand);
+  /* the hero's ink and the Projects scene's ground; dark green letter
+     shadows */
+  --deep: #02170a;
+  --shadow: #0b5c27;
   /* (a plain variable, not a theme one: Tailwind drops theme variables no
      utility class uses) */
   --font-condensed: "Tanker", "Arial Narrow", Impact, sans-serif;

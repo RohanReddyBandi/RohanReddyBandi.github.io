@@ -1,5 +1,5 @@
 // Renders the link-preview image (public/og.png, 1200×630) like the hero:
-// the name in solid dark type on red under a field of wavy lines, plus the
+// the name in solid dark type on green under a field of wavy lines, plus the
 // PNG favicons, with resvg and the real fonts.
 // Run with `npm run og`, then commit the PNGs. Needs curl and unzip.
 import { Resvg } from '@resvg/resvg-js'
@@ -62,15 +62,15 @@ const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" v
     </linearGradient>
     <mask id="fade-mask"><rect width="${W}" height="${fieldEnd}" fill="url(#fade)"/></mask>
   </defs>
-  <rect width="${W}" height="${H}" fill="#f4143c"/>
-  <path d="${lines.join('')}" fill="none" stroke="rgba(23,1,3,0.85)" stroke-width="1" mask="url(#fade-mask)"/>
-  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#170103">RRB</text>
-  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#170103">ROHANREDDYBANDI.GITHUB.IO</text>
-  <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#170103">
+  <rect width="${W}" height="${H}" fill="#2bef6a"/>
+  <path d="${lines.join('')}" fill="none" stroke="rgba(2,23,10,0.85)" stroke-width="1" mask="url(#fade-mask)"/>
+  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#02170a">RRB</text>
+  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#02170a">ROHANREDDYBANDI.GITHUB.IO</text>
+  <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#02170a">
     <text x="${margin - 4}" y="${baseline - size * 0.84}">ROHAN REDDY</text>
     <text x="${margin - 4}" y="${baseline}">BANDI</text>
   </g>
-  <g font-family="General Sans" font-weight="500" font-size="24" fill="rgba(23,1,3,0.78)">
+  <g font-family="General Sans" font-weight="500" font-size="24" fill="rgba(2,23,10,0.78)">
     <text x="${W / 2 + 20}" y="${baseline - 34}">CS @ Purdue.</text>
     <text x="${W / 2 + 20}" y="${baseline - 4}">Building things people actually use.</text>
   </g>

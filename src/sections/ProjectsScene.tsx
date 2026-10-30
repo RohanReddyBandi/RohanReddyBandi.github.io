@@ -6,9 +6,9 @@ import { scrollToY } from '../lib/motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Projects, after wodniack.dev's work section. A red grid with a dark pill
+// Projects, after wodniack.dev's work section. A green grid with a dark pill
 // reading PROJECTS scrolls in; the section pins and you fly into the pill
-// (the red layer scales up around it) while each letter's stacked copies fan
+// (the green layer scales up around it) while each letter's stacked copies fan
 // out sideways into a wall: eight rows, P / R / O / J / E / C / T / S, each
 // letter repeated across the screen, wobbling in 3D. The project cards then
 // slide sideways across the wall in two lanes, weaving between the letters,
@@ -89,7 +89,7 @@ function computeLayout(el: HTMLElement): Layout {
   }
 }
 
-/** The red layer: grid squares, the pill-shaped hole and a ring around it */
+/** The green layer: grid squares, the pill-shaped hole and a ring around it */
 function Mask({ layout }: { layout: Layout | null }) {
   if (!layout) return null
   const { w, h, pillW, pillH } = layout
@@ -107,16 +107,16 @@ function Mask({ layout }: { layout: Layout | null }) {
   const lines: string[] = []
   for (let x = cx % cell; x < w; x += cell) lines.push(`M ${x.toFixed(1)} 0 V ${h}`)
   for (let y = cy % cell; y < h; y += cell) lines.push(`M 0 ${y.toFixed(1)} H ${w}`)
-  const red = `M -2 -2 H ${w + 2} V ${h + 2} H -2 Z ${hole}`
+  const fill = `M -2 -2 H ${w + 2} V ${h + 2} H -2 Z ${hole}`
   return (
     <svg className="pj-mask" viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
       <defs>
-        <clipPath id="pj-red">
-          <path d={red} clipRule="evenodd" />
+        <clipPath id="pj-fill">
+          <path d={fill} clipRule="evenodd" />
         </clipPath>
       </defs>
-      <path className="pj-mask__red" d={red} fillRule="evenodd" />
-      <path className="pj-mask__grid" d={lines.join(' ')} clipPath="url(#pj-red)" />
+      <path className="pj-mask__fill" d={fill} fillRule="evenodd" />
+      <path className="pj-mask__grid" d={lines.join(' ')} clipPath="url(#pj-fill)" />
       <path className="pj-mask__ring" d={ring} />
     </svg>
   )
@@ -203,7 +203,7 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
       // m: progress through the wall (the cards' time)
       const m = clamp01((p - inEnd) / (outStart - inEnd))
 
-      // The red layer scales up around the pill, exponentially so the zoom
+      // The green layer scales up around the pill, exponentially so the zoom
       // feels steady, and steps aside once it's past the screen edges
       const s = L.zoomMax ** q
       mask.style.transform = `scale(${s.toFixed(4)})`
