@@ -1,5 +1,5 @@
 #!/bin/sh
-# Clash Display and General Sans come from Fontshare under the ITF Free Font
+# Clash Display, General Sans and Tanker come from Fontshare under the ITF Free Font
 # License. It allows self-hosting them on this site but not redistributing them
 # through a public repository, so they stay out of git: this script pulls the
 # official files from Fontshare into public/fonts/ before dev and build.
@@ -22,3 +22,4 @@ fetch() {
 
 fetch clash-display ClashDisplay-Variable.woff2
 fetch general-sans GeneralSans-Variable.woff2
+fetch tanker Tanker-Regular.woff2

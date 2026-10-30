@@ -35,6 +35,7 @@ jobs:
           path: |
             public/fonts/ClashDisplay-Variable.woff2
             public/fonts/GeneralSans-Variable.woff2
+            public/fonts/Tanker-Regular.woff2
           key: fontshare-${{ hashFiles('scripts/fetch-fonts.sh') }}
       - run: npm run build
       - uses: actions/configure-pages@v6

@@ -5,10 +5,8 @@ import { site } from '../content/site'
 import { reducedMotion } from '../lib/motion'
 import { useLetterPush } from '../lib/push'
 import { fontsLoaded, pageReady } from '../lib/sequence'
-import { GlyphField } from './GlyphField'
+import { LineField } from './LineField'
 import './hero.css'
-
-const FLICKER_MS = 260
 
 /** One line of the name, split into words and letters for the push effect */
 function Line({ text }: { text: string }) {
@@ -37,19 +35,18 @@ export default function Hero() {
   const name = useRef<HTMLHeadingElement>(null)
   useLetterPush(name, section)
 
-  // The glyph field behind the name
+  // The line field behind the name
   useEffect(() => {
     const el = section.current!
-    const field = new GlyphField(canvas.current!, reducedMotion.matches)
-    let fontIn = false
-    const fit = () => fontIn && field.resize(el.clientWidth, el.clientHeight)
+    const field = new LineField(canvas.current!, reducedMotion.matches)
+    // the lines fade out just above the name
+    const fit = () => {
+      const nameTop = name.current!.getBoundingClientRect().top - el.getBoundingClientRect().top
+      field.resize(el.clientWidth, el.clientHeight, nameTop - 24)
+    }
     const resize = new ResizeObserver(fit)
     resize.observe(el)
-    document.fonts.load('500 12px "JetBrains Mono"').then(() => {
-      fontIn = true
-      fit()
-      pageReady.then(() => field.intro())
-    })
+    fontsLoaded(2500).then(fit)
 
     // Off screen or in a background tab, nothing runs
     let onScreen = true
@@ -60,37 +57,24 @@ export default function Hero() {
     })
     seen.observe(el)
     document.addEventListener('visibilitychange', sync)
-    const flicker = window.setInterval(() => field.flicker(), FLICKER_MS)
+    pageReady.then(() => field.start())
 
-    // The pointer stirs it up (harder when it moves fast); a click or tap
-    // sends a ring outward
-    let last = { x: 0, y: 0, t: 0 }
-    const local = (e: PointerEvent) => {
-      const r = canvas.current!.getBoundingClientRect()
-      return { x: e.clientX - r.left, y: e.clientY - r.top }
-    }
+    // The lines part around the pointer
     const move = (e: PointerEvent) => {
-      const p = local(e)
-      const speed = Math.hypot(p.x - last.x, p.y - last.y) / Math.max(8, e.timeStamp - last.t)
-      last = { ...p, t: e.timeStamp }
-      field.stir(p.x, p.y, Math.min(1, speed / 1.6))
+      const r = el.getBoundingClientRect()
+      field.pointer(e.clientX - r.left, e.clientY - r.top)
     }
-    const press = (e: PointerEvent) => {
-      const p = local(e)
-      field.pulse(p.x, p.y)
-      field.stir(p.x, p.y, 1)
-    }
+    const leave = () => field.leave()
     el.addEventListener('pointermove', move, { passive: true })
-    el.addEventListener('pointerdown', press)
+    el.addEventListener('pointerleave', leave)
 
     return () => {
       field.destroy()
       resize.disconnect()
       seen.disconnect()
       document.removeEventListener('visibilitychange', sync)
-      clearInterval(flicker)
       el.removeEventListener('pointermove', move)
-      el.removeEventListener('pointerdown', press)
+      el.removeEventListener('pointerleave', leave)
     }
   }, [])
 
@@ -126,8 +110,8 @@ export default function Hero() {
   }, [])
 
   return (
-    <section ref={section} id="top" className="glyph-hero" aria-labelledby="hero-title">
-      <canvas ref={canvas} className="glyph-hero__field" aria-hidden="true" />
+    <section ref={section} id="top" className="hero" aria-labelledby="hero-title">
+      <canvas ref={canvas} className="hero__field" aria-hidden="true" />
 
       <div className="hero__foot site-grid">
         <div className="hero__stack">

@@ -59,7 +59,7 @@ export const site = {
       title: 'This Very Website',
       line: 'You’re looking at it.',
       detail:
-        'A glyph-field hero you can scramble, a scroll-pinned 3D gallery, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
+        'A hero of wavy lines that bend around your cursor, a wall of letters you zoom into to see the projects, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
       tags: ['React', 'TypeScript', 'GSAP', 'Canvas', 'SVG filters'],
       year: '2026',
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
@@ -75,14 +75,14 @@ export const site = {
     {
       title: 'Purdue University',
       caption: 'B.S. Computer Science',
-      when: '[GRAD YEAR]',
+      when: '2026 – 2030',
       line: '',
       under: [{ title: 'The Data Mine', caption: 'General cohort', when: '[YEAR]', line: '' }],
     },
     {
       title: 'North Allegheny Senior High School',
       caption: '4.38 GPA',
-      when: '[GRAD YEAR]',
+      when: 'Class of 2026',
       line: '',
       under: [],
     },

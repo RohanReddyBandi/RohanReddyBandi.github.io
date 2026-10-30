@@ -12,7 +12,14 @@
   --fg: #edede8;
   --muted: #8a8a85;
   --line: rgb(237 237 232 / 0.12);
-  --accent: #c8ff3d;
+  --red: #f4143c;
+  --accent: var(--red);
+  /* the Projects scene: deep maroon ground, dark red letter shadows */
+  --deep: #170103;
+  --shadow: #5c000c;
+  /* (a plain variable, not a theme one: Tailwind drops theme variables no
+     utility class uses) */
+  --font-condensed: "Tanker", "Arial Narrow", Impact, sans-serif;
 
   --gutter: clamp(1rem, 3.2vw, 2.75rem);
 

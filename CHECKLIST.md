@@ -21,9 +21,7 @@ them for your own anytime with the same names.
 | Placeholder | Where it shows |
 | --- | --- |
 | `clock.city` / `clock.timeZone` | Top bar clock. Set to West Lafayette; change if you'd rather not. |
-| Purdue `when: '[GRAD YEAR]'` | Education, Purdue row |
 | The Data Mine `when: '[YEAR]'` | Education, nested under Purdue |
-| North Allegheny `when: '[GRAD YEAR]'` | Education, high school row |
 | The Data Mine `line: ''` | Optional: one line on what you worked on |
 | Work `year` | Duck Days 2026, TRADR 2026, Compound Growth 2025, from each repo's first commit |
 

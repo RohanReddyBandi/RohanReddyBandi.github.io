@@ -1,6 +1,6 @@
 // Renders the link-preview image (public/og.png, 1200×630) like the hero:
-// the name in solid type over a faint field of 0s and 1s, plus the PNG
-// favicons, with resvg and the real fonts.
+// the name in solid dark type on red under a field of wavy lines, plus the
+// PNG favicons, with resvg and the real fonts.
 // Run with `npm run og`, then commit the PNGs. Needs curl and unzip.
 import { Resvg } from '@resvg/resvg-js'
 import { execFileSync } from 'node:child_process'
@@ -10,9 +10,6 @@ import { fileURLToPath } from 'node:url'
 const root = (p) => fileURLToPath(new URL(`../${p}`, import.meta.url))
 const W = 1200
 const H = 630
-const CELL = 10
-const COLS = W / CELL
-const ROWS = H / CELL
 
 // resvg needs TTFs; the site's woff2 files won't do. Fetch once into a cache.
 const cache = root('node_modules/.cache/og-fonts')
@@ -34,40 +31,46 @@ const fonts = [
 const render = (svg, width) =>
   new Resvg(svg, { fitTo: { mode: 'width', value: width }, font: { fontFiles: fonts, loadSystemFonts: false } }).render()
 
-// Same seeded noise every run
-let seed = 0x5eed2026
-const rand = () => {
-  seed = (seed + 0x6d2b79f5) | 0
-  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-}
-const pick = (chars) => chars[(rand() * chars.length) | 0]
-
-// The faint field: 0s and 1s, same seeded noise every run
-const cells = []
-for (let y = 0; y < ROWS; y++) {
-  for (let x = 0; x < COLS; x++) {
-    if (rand() < 0.55) cells.push(`<text x="${x * CELL + CELL / 2}" y="${y * CELL + CELL / 2 + 3.4}">${pick('01')}</text>`)
-  }
-}
+// The line field, frozen at one moment (same waves as src/hero/LineField.ts)
+const SPACING = 9
+const STEP = 14
+const offset = (x, y) =>
+  Math.sin(x * 0.0085 + y * 0.0042) * 46 + Math.sin(x * 0.0031 - y * 0.0067) * 70 * Math.sin(y * 0.0021)
 
 // "ROHAN REDDY" is ~7.03em wide in Clash Display at -0.035em tracking (same
 // as the hero), so it spans the width at size = width / 7.1
 const margin = 50
 const size = (W - margin * 2) / 7.1
 const baseline = H - 96
+// the lines fade out just above the name's cap height
+const fieldEnd = Math.round(baseline - size * 0.84 - size * 0.72 - 24)
+const lines = []
+for (let x = -SPACING * 8; x < W + SPACING * 8; x += SPACING) {
+  const pts = []
+  for (let y = 0; y < fieldEnd + STEP; y += STEP) {
+    const yy = Math.min(y, fieldEnd)
+    pts.push(`${(x + offset(x, yy)).toFixed(1)},${yy}`)
+  }
+  lines.push(`M${pts.join('L')}`)
+}
 
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <rect width="${W}" height="${H}" fill="#0b0b0c"/>
-  <g font-family="JetBrains Mono" font-weight="500" font-size="${CELL * 0.86}" text-anchor="middle" fill="rgba(237,237,232,0.13)">${cells.join('')}</g>
-  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#edede8">RRB</text>
-  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#8a8a85">ROHANREDDYBANDI.GITHUB.IO</text>
-  <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#edede8">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="${fieldEnd}" gradientUnits="userSpaceOnUse">
+      <stop offset="${((fieldEnd - 140) / fieldEnd).toFixed(3)}" stop-color="#fff"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="fade-mask"><rect width="${W}" height="${fieldEnd}" fill="url(#fade)"/></mask>
+  </defs>
+  <rect width="${W}" height="${H}" fill="#f4143c"/>
+  <path d="${lines.join('')}" fill="none" stroke="rgba(23,1,3,0.85)" stroke-width="1" mask="url(#fade-mask)"/>
+  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#170103">RRB</text>
+  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#170103">ROHANREDDYBANDI.GITHUB.IO</text>
+  <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#170103">
     <text x="${margin - 4}" y="${baseline - size * 0.84}">ROHAN REDDY</text>
     <text x="${margin - 4}" y="${baseline}">BANDI</text>
   </g>
-  <g font-family="General Sans" font-weight="500" font-size="24" fill="#8a8a85">
+  <g font-family="General Sans" font-weight="500" font-size="24" fill="rgba(23,1,3,0.78)">
     <text x="${W / 2 + 20}" y="${baseline - 34}">CS @ Purdue.</text>
     <text x="${W / 2 + 20}" y="${baseline - 4}">Building things people actually use.</text>
   </g>

@@ -9,13 +9,13 @@ import { finePointer, reducedMotion } from '../lib/motion'
 // of fading glitch pieces along the path. A 4px square marks the exact point
 // (with the system cursor hidden, flat background would otherwise show
 // nothing). Over elements tagged data-cursor="open" a small tag says so. Over the hero it stays calm (just the marker), since the hero's
-// glyph field scrambles itself under the pointer.
+// lines and letters already move under the pointer.
 // The glitch is an SVG filter run as backdrop-filter, which only Chromium
 // supports; Safari and Firefox keep the system cursor and just get the tags.
 // Mouse/trackpad with motion allowed only.
 
 const INTERACTIVE = 'a, button, [role="button"], [role="slider"], summary, label'
-const CALM = '.glyph-hero'
+const CALM = '.hero'
 const LABELS: Record<string, string> = { open: 'Open ↗' }
 
 // The region's outline, in % of its own box: stepped, so glitched areas have
