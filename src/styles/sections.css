@@ -361,11 +361,13 @@
 
 .contact__cta {
   font-family: var(--font-display);
-  font-size: clamp(2.75rem, 1.4rem + 6vw, 7rem);
+  font-size: clamp(2.25rem, 1rem + 6.4vw, 7rem);
   font-weight: 600;
   line-height: 0.9;
   letter-spacing: -0.03em;
   text-transform: uppercase;
+  /* the size scales with the width, so it stays on one line */
+  white-space: nowrap;
 }
 
 .contact__links {
