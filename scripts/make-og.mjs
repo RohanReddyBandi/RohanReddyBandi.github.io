@@ -1,6 +1,6 @@
 // Renders the link-preview image (public/og.png, 1200×630) like the hero:
-// the name in solid dark type on green under a field of wavy lines, plus the
-// PNG favicons, with resvg and the real fonts.
+// the name in off-white on black with the green-lined lens over part of it,
+// plus the PNG favicons, with resvg and the real fonts.
 // Run with `npm run og`, then commit the PNGs. Needs curl and unzip.
 import { Resvg } from '@resvg/resvg-js'
 import { execFileSync } from 'node:child_process'
@@ -31,46 +31,60 @@ const fonts = [
 const render = (svg, width) =>
   new Resvg(svg, { fitTo: { mode: 'width', value: width }, font: { fontFiles: fonts, loadSystemFonts: false } }).render()
 
-// The line field, frozen at one moment (same waves as src/hero/LineField.ts)
-const SPACING = 9
-const STEP = 14
-const offset = (x, y) =>
-  Math.sin(x * 0.0085 + y * 0.0042) * 46 + Math.sin(x * 0.0031 - y * 0.0067) * 70 * Math.sin(y * 0.0021)
-
 // "ROHAN REDDY" is ~7.03em wide in Clash Display at -0.035em tracking (same
 // as the hero), so it spans the width at size = width / 7.1
 const margin = 50
 const size = (W - margin * 2) / 7.1
 const baseline = H - 96
-// the lines fade out just above the name's cap height
-const fieldEnd = Math.round(baseline - size * 0.84 - size * 0.72 - 24)
+const line1 = baseline - size * 0.84
+const nameFont = `font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}"`
+// font on each <text>, since a clip path can't hold a <g>
+const nameText = `
+    <text x="${margin - 4}" y="${line1}" ${nameFont}>ROHAN REDDY</text>
+    <text x="${margin - 4}" y="${baseline}" ${nameFont}>BANDI</text>`
+
+// The lens (src/hero/NameLens.ts), frozen over the end of REDDY: wavy lines,
+// magnified toward its center, bright inside the letters and faint around them
+const LX = 1000
+const LY = line1 - size * 0.36
+const R = 150
+const SPACING = 4
+const STEP = 8
+const offset = (x, y) => {
+  let d = Math.sin(x * 0.011 + y * 0.006) * 18 + Math.sin(x * 0.004 - y * 0.009) * 26 * Math.sin(y * 0.003)
+  const dx = x + d - LX
+  const dy = y - LY
+  const s = R * 0.45
+  d += dx * Math.exp(-(dx * dx + dy * dy) / (2 * s * s)) * 0.55
+  return d
+}
 const lines = []
-for (let x = -SPACING * 8; x < W + SPACING * 8; x += SPACING) {
+for (let x = Math.floor((LX - R - 48) / SPACING) * SPACING; x < LX + R + 48; x += SPACING) {
   const pts = []
-  for (let y = 0; y < fieldEnd + STEP; y += STEP) {
-    const yy = Math.min(y, fieldEnd)
-    pts.push(`${(x + offset(x, yy)).toFixed(1)},${yy}`)
-  }
+  for (let y = LY - R; y < LY + R + STEP; y += STEP) pts.push(`${(x + offset(x, y)).toFixed(1)},${y.toFixed(1)}`)
   lines.push(`M${pts.join('L')}`)
 }
+const lens = (id, inside, outside) => `
+    <radialGradient id="${id}" cx="${LX}" cy="${LY}" r="${R}" gradientUnits="userSpaceOnUse">
+      <stop offset="0.55" stop-color="${inside}"/>
+      <stop offset="1" stop-color="${outside}"/>
+    </radialGradient>
+    <mask id="${id}-mask"><rect width="${W}" height="${H}" fill="url(#${id})"/></mask>`
 
 const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <defs>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="${fieldEnd}" gradientUnits="userSpaceOnUse">
-      <stop offset="${((fieldEnd - 140) / fieldEnd).toFixed(3)}" stop-color="#fff"/>
-      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-    </linearGradient>
-    <mask id="fade-mask"><rect width="${W}" height="${fieldEnd}" fill="url(#fade)"/></mask>
+  <defs>${lens('lens', '#fff', '#000')}${lens('hole', '#000', '#fff')}
+    <clipPath id="name-clip">${nameText}</clipPath>
   </defs>
-  <rect width="${W}" height="${H}" fill="#2bef6a"/>
-  <path d="${lines.join('')}" fill="none" stroke="rgba(2,23,10,0.85)" stroke-width="1" mask="url(#fade-mask)"/>
-  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#02170a">RRB</text>
-  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#02170a">ROHANREDDYBANDI.GITHUB.IO</text>
-  <g font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}" fill="#02170a">
-    <text x="${margin - 4}" y="${baseline - size * 0.84}">ROHAN REDDY</text>
-    <text x="${margin - 4}" y="${baseline}">BANDI</text>
+  <rect width="${W}" height="${H}" fill="#0b0b0c"/>
+  <text x="50" y="56" font-family="Clash Display" font-weight="600" font-size="24" fill="#edede8">RRB</text>
+  <text x="${W - 50}" y="55" text-anchor="end" font-family="JetBrains Mono" font-weight="500" font-size="15" letter-spacing="2" fill="#8a8a85">ROHANREDDYBANDI.GITHUB.IO</text>
+  <g fill="#edede8" mask="url(#hole-mask)">${nameText}
   </g>
-  <g font-family="General Sans" font-weight="500" font-size="24" fill="rgba(2,23,10,0.78)">
+  <g fill="none" mask="url(#lens-mask)">
+    <path d="${lines.join('')}" stroke="rgba(43,239,106,0.16)" stroke-width="1"/>
+    <path d="${lines.join('')}" stroke="#2bef6a" stroke-width="1.4" clip-path="url(#name-clip)"/>
+  </g>
+  <g font-family="General Sans" font-weight="500" font-size="24" fill="#8a8a85">
     <text x="${W / 2 + 20}" y="${baseline - 34}">CS @ Purdue.</text>
     <text x="${W / 2 + 20}" y="${baseline - 4}">Building things people actually use.</text>
   </g>

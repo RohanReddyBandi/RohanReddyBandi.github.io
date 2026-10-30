@@ -342,6 +342,52 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Contact                                                             */
+/* ------------------------------------------------------------------ */
+
+.contact {
+  padding-block: clamp(5rem, 10vw, 9rem) clamp(2rem, 4vw, 3rem);
+}
+
+.contact__body {
+  align-items: end;
+  row-gap: 2.5rem;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.contact__main {
+  grid-column: 1 / -1;
+}
+
+.contact__cta {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 1.4rem + 6vw, 7rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.contact__links {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 0.25rem 2rem;
+}
+
+@media (width >= 64rem) {
+  .contact__main {
+    grid-column: 1 / span 8;
+  }
+
+  .contact__links {
+    grid-column: 9 / span 4;
+    justify-content: flex-end;
+    padding-bottom: 1.6rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Buttons                                                             */
 /* ------------------------------------------------------------------ */
 

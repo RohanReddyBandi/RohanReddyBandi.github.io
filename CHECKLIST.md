@@ -8,7 +8,7 @@ push to `main` and the site redeploys.
 
 | What | Put it here | Notes |
 | --- | --- | --- |
-| Resume | `public/resume.pdf` | Exactly that name. The resume link (top bar and phone menu) appears automatically once the file exists. Restart `npm run dev` locally to see them. |
+| Resume | `public/resume.pdf` | In place (your Oct 2 resume). To update it, replace the file with the same name. It's linked from the top bar, the phone menu and Contact. |
 | Duck Days screenshot | `src/assets/work/duck-days-1600.webp` + `duck-days-800.webp` | 16:10. Drop the pair in and it shows up on its own. Or send any 16:10 image (a widget on a home screen works) and it gets converted. |
 
 TRADR and Compound Growth screenshots are real captures from their live sites

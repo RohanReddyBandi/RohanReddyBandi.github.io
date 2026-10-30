@@ -9,8 +9,10 @@ export const site = {
   tagline: { lead: 'CS @ Purdue.', rest: 'Building things people actually use.' },
   // Top bar clock. [CONFIRM: West Lafayette, or somewhere else?]
   clock: { city: 'West Lafayette', timeZone: 'America/Indiana/Indianapolis' },
+  email: 'bandi8@purdue.edu',
   links: {
     github: 'https://github.com/RohanReddyBandi',
+    linkedin: 'https://www.linkedin.com/in/rohan-reddy-bandi-323590248/',
     resume: '/resume.pdf',
   },
   // Projects, in this order. Years come from each repo's first commit.
@@ -59,7 +61,7 @@ export const site = {
       title: 'This Very Website',
       line: 'You’re looking at it.',
       detail:
-        'A hero of wavy lines that bend around your cursor, a wall of letters you zoom into to see the projects, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
+        'A name with an x-ray lens that turns the letters into wavy lines, a wall of letters you zoom into to see the projects, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
       tags: ['React', 'TypeScript', 'GSAP', 'Canvas', 'SVG filters'],
       year: '2026',
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
@@ -95,7 +97,8 @@ export const site = {
     },
   ],
   nav: [
-    { label: 'Projects', href: '#work' },
     { label: 'Education', href: '#experience' },
+    { label: 'Projects', href: '#work' },
+    { label: 'Contact', href: '#contact' },
   ],
 }

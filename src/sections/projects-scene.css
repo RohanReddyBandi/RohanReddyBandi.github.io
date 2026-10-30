@@ -63,7 +63,45 @@
 }
 
 .pj-card__link {
+  position: relative;
   display: block;
+}
+
+/* A sticker on each card's corner, wiggling a little so it gets noticed */
+.pj-card__tag {
+  position: absolute;
+  top: -0.85rem;
+  left: -0.7rem;
+  z-index: 1;
+  padding: 0.5rem 0.75rem;
+  background: var(--fg);
+  box-shadow: 0 0 0 2px var(--deep);
+  color: var(--deep);
+  white-space: nowrap;
+  rotate: -7deg;
+  animation: pj-tag-wiggle 2.4s ease-in-out infinite;
+}
+
+.pj-card__link:hover .pj-card__tag,
+.pj-card__link:focus-visible .pj-card__tag {
+  background: var(--brand);
+}
+
+@keyframes pj-tag-wiggle {
+  0%,
+  70%,
+  100% {
+    rotate: -7deg;
+  }
+  76% {
+    rotate: -1deg;
+  }
+  82% {
+    rotate: -11deg;
+  }
+  88% {
+    rotate: -4deg;
+  }
 }
 
 .pj-card__shot {

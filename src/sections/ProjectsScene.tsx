@@ -126,6 +126,9 @@ function Card({ project, index, n, children }: { project: (typeof site.work)[num
   return (
     <li className={`pj-card ${project.self ? 'is-self' : ''}`}>
       <a className="pj-card__link" href={project.href} target="_blank" rel="noopener" data-cursor="open">
+        <span className="pj-card__tag label" aria-hidden="true">
+          Click me ↗
+        </span>
         <div className="pj-card__shot" aria-hidden="true">
           {children}
         </div>

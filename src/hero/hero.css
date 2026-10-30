@@ -1,29 +1,17 @@
 /* ------------------------------------------------------------------ */
-/* Hero: solid green, the line field (LineField.ts), the name in dark     */
+/* Hero: plain black, the name, and the x-ray lens over it (NameLens.ts)  */
 /* ------------------------------------------------------------------ */
 
 .hero {
-  /* everything in here is dark-on-green */
-  --fg: var(--deep);
-  --muted: rgb(2 23 10 / 0.78);
-  --line: rgb(2 23 10 / 0.25);
-  --accent: var(--deep);
   position: relative;
   height: 100svh;
   min-height: 520px;
   overflow: hidden;
-  background: var(--brand);
-  color: var(--deep);
   /* vertical swipes still scroll the page on touch screens */
   touch-action: pan-y;
 }
 
-/* utility colors resolve at :root, so re-point them here too */
-.hero .text-muted {
-  color: var(--muted);
-}
-
-.hero__field {
+.hero__lens {
   position: absolute;
   top: 0;
   left: 0;
@@ -57,10 +45,20 @@
 }
 
 .hero-name {
-  color: var(--deep);
+  color: var(--fg);
   font-family: var(--font-display);
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* Under the lens the solid name fades out, so the canvas's lines show. Only
+   once the lens is on (after the entrance, which a mask would clip). */
+.hero-name[data-lens] {
+  --lx: -999px;
+  --ly: -999px;
+  --lr: 0px;
+  -webkit-mask-image: radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.55), #000 var(--lr));
+  mask-image: radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.55), #000 var(--lr));
 }
 
 .hero-name__line {

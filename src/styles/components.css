@@ -42,18 +42,6 @@
   translate: 0 -100%;
 }
 
-/* Over the green hero (not scrolled yet), the bar is dark-on-green. Tailwind's
-   color utilities resolve at :root, so their variables are re-pointed too. */
-.topbar:not([data-scrolled="true"]):not([data-menu="true"]) {
-  --fg: var(--deep);
-  --muted: rgb(2 23 10 / 0.78);
-  --accent: var(--deep);
-  --color-fg: var(--deep);
-  --color-muted: rgb(2 23 10 / 0.78);
-  --color-accent: var(--deep);
-  color: var(--deep);
-}
-
 .topbar__logo {
   font-family: var(--font-display);
   font-size: 1.0625rem;
