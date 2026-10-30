@@ -61,8 +61,8 @@ export const site = {
       title: 'This Very Website',
       line: 'You’re looking at it.',
       detail:
-        'A name with an x-ray lens that turns the letters into wavy lines, a wall of letters you zoom into to see the projects, a cursor that glitches the page through an SVG backdrop filter, and a duck. Built from scratch.',
-      tags: ['React', 'TypeScript', 'GSAP', 'Canvas', 'SVG filters'],
+        'A name with an x-ray lens that turns the letters into wavy lines, a wall of letters you zoom into to see the projects, a cursor that stirs glitched smoke and bugs out the page under it, and a duck. Built from scratch.',
+      tags: ['React', 'TypeScript', 'GSAP', 'WebGL', 'Canvas', 'SVG filters'],
       year: '2026',
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
       linkLabel: 'Source on GitHub',

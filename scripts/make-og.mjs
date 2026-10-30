@@ -32,9 +32,9 @@ const render = (svg, width) =>
   new Resvg(svg, { fitTo: { mode: 'width', value: width }, font: { fontFiles: fonts, loadSystemFonts: false } }).render()
 
 // "ROHAN REDDY" is ~7.03em wide in Clash Display at -0.035em tracking (same
-// as the hero), so it spans the width at size = width / 7.1
+// as the hero), so at width / 12 it spans a bit over half, like the hero
 const margin = 50
-const size = (W - margin * 2) / 7.1
+const size = (W - margin * 2) / 12
 const baseline = H - 96
 const line1 = baseline - size * 0.84
 const nameFont = `font-family="Clash Display" font-weight="600" font-size="${size}" letter-spacing="${-0.035 * size}"`
@@ -45,9 +45,9 @@ const nameText = `
 
 // The lens (src/hero/NameLens.ts), frozen over the end of REDDY: wavy lines,
 // magnified toward its center, bright inside the letters and faint around them
-const LX = 1000
+const LX = margin + size * 6
 const LY = line1 - size * 0.36
-const R = 150
+const R = size * 0.95
 const SPACING = 4
 const STEP = 8
 const offset = (x, y) => {

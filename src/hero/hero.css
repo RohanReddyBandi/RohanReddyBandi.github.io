@@ -25,14 +25,14 @@
 }
 
 /*
-  The name fills its column. "ROHAN REDDY" measures ~7.03em wide in Clash
-  Display at this tracking, so its size = column width / 7.1, capped by the
-  viewport height so short, wide screens keep room. On phones each word gets
-  its own line (ROHAN / REDDY / BANDI); "ROHAN", the widest, is ~3.54em.
-  Change the name, re-measure the ratios.
+  The name takes a bit over half the column. "ROHAN REDDY" measures ~7.03em
+  wide in Clash Display at this tracking, so at column width / 12 it spans
+  ~59%; capped by the viewport height so short, wide screens keep room. On
+  phones each word gets its own line (ROHAN / REDDY / BANDI); "ROHAN", the
+  widest, is ~3.54em, so /5 spans ~71%. Change the name, re-measure.
 */
 .hero__stack {
-  --name-size: min(100cqi / 3.6, 17svh);
+  --name-size: min(100cqi / 5, 12svh);
   position: relative;
   grid-column: 1 / -1;
   container-type: inline-size;
@@ -40,7 +40,7 @@
 
 @media (width >= 48rem) {
   .hero__stack {
-    --name-size: min(100cqi / 7.1, 25svh);
+    --name-size: min(100cqi / 12, 16svh);
   }
 }
 
