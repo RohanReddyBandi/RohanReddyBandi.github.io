@@ -5,10 +5,10 @@ import { finePointer, reducedMotion } from '../lib/motion'
 
 // The page bugs out under the pointer (after ChainGPT Labs' WebGL footer):
 // a stepped region at the pointer slices what's behind it sideways in bands,
-// pixelates it and turns it red with a white ghost split off, harder the
-// faster you move. Behind it, the pointer stirs a thin red glitched smoke
-// trail that swirls and fades (after lenvalproperties.com; see
-// lib/glitchSmoke.ts). The system cursor stays: a page-drawn one only moves
+// pixelates it and splits it into red and cyan, harder the faster you move.
+// Behind it, the pointer stirs a thin glitched smoke trail that swirls and
+// fades (after lenvalproperties.com; see lib/glitchSmoke.ts). The system
+// cursor stays: a page-drawn one only moves
 // when the page draws a frame, so it lags behind the mouse, badly when the
 // browser caps the frame rate (Chromium's Energy Saver runs pages at 30fps on
 // a low battery). Over elements tagged data-cursor="open" a small tag says so.
@@ -51,7 +51,7 @@ export default function Cursor() {
 
     const noise = filter.current!.querySelector('feTurbulence')!
     const shift = filter.current!.querySelector('feDisplacementMap')!
-    const [red, ghost] = filter.current!.querySelectorAll('feOffset')
+    const [red, cyan] = filter.current!.querySelectorAll('feOffset')
 
     const smoke = GlitchSmoke.create(smokeCanvas.current!)
     const resize = () => smoke?.resize()
@@ -79,8 +79,8 @@ export default function Cursor() {
       const e = energy
       noise.setAttribute('seed', String((Math.random() * 999) | 0))
       shift.setAttribute('scale', (24 + e * 84).toFixed(1))
-      red.setAttribute('dx', (-3 - e * 7).toFixed(1))
-      ghost.setAttribute('dx', (4 + e * 10).toFixed(1))
+      red.setAttribute('dx', (-3 - e * 6).toFixed(1))
+      cyan.setAttribute('dx', (3 + e * 5).toFixed(1))
     }
 
     const tick = () => {
@@ -179,8 +179,7 @@ export default function Cursor() {
       </div>
 
       {/* The glitch: horizontal bands from 1D noise, stepped into a few
-          discrete shifts, then pixelated, turned red (dark red where the page
-          is dark) and given a white ghost offset the other way */}
+          discrete shifts, then pixelated and split into red and cyan */}
       <svg className="cursor__defs" aria-hidden="true" focusable="false">
         <filter
           ref={filter}
@@ -210,21 +209,11 @@ export default function Cursor() {
           <feTile in="cell" result="grid" />
           <feComposite in="shifted" in2="grid" operator="in" result="sampled" />
           <feMorphology in="sampled" operator="dilate" radius={3} result="pixels" />
-          <feColorMatrix
-            in="pixels"
-            type="matrix"
-            values="0.5 1 0.3 0 0.2  0.04 0.08 0.02 0 0.01  0.06 0.12 0.03 0 0.02  0 0 0 1 0"
-            result="r"
-          />
+          <feColorMatrix in="pixels" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r" />
           <feOffset in="r" dx={-3} result="redShift" />
-          <feColorMatrix
-            in="pixels"
-            type="matrix"
-            values="0.2 0.4 0.1 0 0  0.2 0.4 0.1 0 0  0.2 0.4 0.1 0 0  0 0 0 1 0"
-            result="white"
-          />
-          <feOffset in="white" dx={4} result="ghostShift" />
-          <feBlend in="redShift" in2="ghostShift" mode="screen" />
+          <feColorMatrix in="pixels" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="gb" />
+          <feOffset in="gb" dx={3} result="cyanShift" />
+          <feBlend in="redShift" in2="cyanShift" mode="screen" />
         </filter>
       </svg>
     </>

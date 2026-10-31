@@ -1,11 +1,12 @@
 import gsap from 'gsap'
+import { accentVec } from './accent'
 
 // The cursor's trail, after lenvalproperties.com: moving the pointer stirs a
 // small fluid simulation (WebGL2, the usual advect / project steps), and the
-// smoke it leaves swirls, drifts and fades. Here the smoke is drawn broken
-// and red: hard-edged pixel blocks, rows torn sideways, a white-hot fringe
-// split off along the flow, thin streaks shooting out sideways, white
-// sparks and scanlines, re-rolled ~14 times a second. Kept cheap: small
+// smoke it leaves swirls, drifts and fades. Here the smoke is a thin green
+// trail drawn broken: hard-edged pixel blocks, rows torn sideways, red and
+// blue split off along the flow, scanlines and the odd white block,
+// re-rolled ~14 times a second. Kept cheap: small
 // grids, all of a frame's splats in one pass, and the broken look drawn at
 // half resolution (it's blocky anyway). Runs only while there's smoke;
 // returns null where WebGL2 can't render to float textures.
@@ -13,14 +14,13 @@ import gsap from 'gsap'
 const SIM = 80 // velocity grid, short side
 const DYE = 200 // smoke grid, short side
 const RES = 0.5 // canvas pixels per CSS pixel
-const RADIUS = 10 // splat radius, CSS px: a thin trail
+const RADIUS = 7 // splat radius, CSS px: a thin trail
 const FORCE = 3 // pointer px → velocity: enough to curl, not to fling
 const JACOBI = 8 // pressure iterations
 const VEL_KEEP = 0.96 // velocity kept per frame (at 60fps)
 const DYE_KEEP = 0.94 // smoke kept per frame: gone in under half a second
 const IDLE = 1 // s without input before it stops
 const MAX_SPLATS = 16 // per frame, one pass (matches the shader's arrays)
-const RED: [number, number, number] = [1, 0.06, 0.1]
 
 const VERT = `#version 300 es
 in vec2 aPos;
@@ -119,39 +119,33 @@ uniform sampler2D uDye;
 uniform sampler2D uVelocity;
 uniform vec2 uRes;
 uniform float uTick;
-uniform vec3 uColor;
+uniform vec3 uBrand;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float on(vec2 uv, float edge) { return step(edge, texture(uDye, uv).x); }
 void main() {
   vec2 px = vUv * uRes;
   float here = texture(uDye, vUv).x;
-  // rows torn hard sideways, only where there's smoke
+  // rows torn sideways, only where there's smoke
   float bandH = 2.0 + floor(9.0 * hash(vec2(uTick, 1.3)));
   float band = floor(px.y / bandH);
-  float tear = (hash(vec2(band, uTick)) - 0.5) * 2.0 * step(0.45, hash(vec2(band, uTick + 9.1)));
-  px.x += tear * 30.0 * smoothstep(0.04, 0.4, here);
+  float tear = (hash(vec2(band, uTick)) - 0.5) * 2.0 * step(0.5, hash(vec2(band, uTick + 9.1)));
+  px.x += tear * 16.0 * smoothstep(0.04, 0.4, here);
   // blocks, a different size in each patch
-  float size = floor(mix(1.0, 5.0, hash(floor(px / 40.0) + uTick * 0.37)));
+  float size = floor(mix(1.0, 4.0, hash(floor(px / 40.0) + uTick * 0.37)));
   vec2 uv = (floor(px / size) + 0.5) * size / uRes;
   float body = on(uv, 0.12);
   float core = on(uv, 0.42);
-  // a fringe pulled off along the flow: white-hot on one side, dim red on
-  // the other
-  vec2 flow = clamp(texture(uVelocity, uv).xy * 0.02, -6.0, 6.0);
-  vec2 split = (vec2(2.0, 0.0) + flow) / uRes;
-  float hot = max(on(uv + split, 0.12) - body, 0.0);
-  float dim = max(on(uv - split, 0.12) - body, 0.0);
-  // thin streaks: a few pixel rows each tick reach out sideways from the
-  // thick of the trail
-  float row = step(0.88, hash(vec2(floor(px.y), uTick)));
-  vec2 reach = vec2(36.0, 0.0) / uRes;
-  float streak = row * (1.0 - body) * max(max(on(uv + reach, 0.2), on(uv - reach, 0.2)), max(on(uv + reach * 2.0, 0.2), on(uv - reach * 2.0, 0.2)));
-  vec3 c = uColor * (0.85 * body + 0.15 * core + 0.4 * dim + streak) + vec3(0.9) * hot;
-  float a = clamp(body + hot + 0.6 * dim + streak, 0.0, 1.0);
-  // white sparks in the thick of it
-  c = mix(c, vec3(1.0), step(0.97, hash(floor(px / 3.0) + uTick * 1.7)) * core);
+  // channels pulled apart along the flow: red off one side, blue the other
+  vec2 flow = clamp(texture(uVelocity, uv).xy * 0.02, -5.0, 5.0);
+  vec2 split = (vec2(1.5, 0.0) + flow) / uRes;
+  float r = max(on(uv + split, 0.12) - body, 0.0);
+  float b = max(on(uv - split, 0.12) - body, 0.0);
+  vec3 c = uBrand * (0.75 * body + 0.25 * core) + vec3(1.0, 0.1, 0.35) * r + vec3(0.2, 0.5, 1.0) * b;
+  float a = clamp(body + r + b, 0.0, 1.0);
+  // the odd block flashes white
+  c = mix(c, vec3(1.0), step(0.985, hash(floor(px / 3.0) + uTick * 1.7)) * core);
   // scanlines
-  c *= 0.7 + 0.3 * mod(floor(px.y), 2.0);
+  c *= 0.75 + 0.25 * mod(floor(px.y), 2.0);
   o = vec4(min(c, vec3(a)), a);
 }`)
 
@@ -344,7 +338,7 @@ export class GlitchSmoke {
       uVelocity: this.velocity!.read,
       uRes: [this.canvas.width, this.canvas.height],
       uTick: Math.floor(this.time * 14),
-      uColor: RED,
+      uBrand: accentVec,
     })
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
