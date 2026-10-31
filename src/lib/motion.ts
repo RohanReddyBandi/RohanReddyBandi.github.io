@@ -42,9 +42,38 @@ export function startSmoothScroll() {
   lenis = new Lenis({ autoRaf: false })
   lenis.on('scroll', ScrollTrigger.update)
   lenis.on('scroll', (l: Lenis) => scrollListeners.forEach((fn) => fn(l.scroll)))
-  gsap.ticker.add((time) => lenis?.raf(time * 1000))
+  gsap.ticker.add(driveLenis)
+  gsap.ticker.add(watchFrames)
   gsap.ticker.lagSmoothing(0)
   document.addEventListener('click', onAnchorClick)
+}
+
+const driveLenis = (time: number) => lenis?.raf(time * 1000)
+
+// At 30fps or less (Chromium's Energy Saver caps pages at 30 on a low
+// battery, and slow machines get there on their own) smoothing only adds
+// lag on top of choppy frames, so hand scrolling back to the browser for
+// good. Judged on the median of the last 120 frames, so one hitch doesn't
+// count.
+const SLOW_FRAME_MS = 25
+const SAMPLE = 120
+const gaps: number[] = []
+
+function watchFrames(_time: number, deltaMs: number) {
+  if (deltaMs > 250) return // back from a background tab
+  gaps.push(deltaMs)
+  if (gaps.length < SAMPLE) return
+  const median = gaps.sort((a, b) => a - b)[SAMPLE / 2]
+  gaps.length = 0
+  if (median > SLOW_FRAME_MS) stopSmoothScroll()
+}
+
+function stopSmoothScroll() {
+  gsap.ticker.remove(driveLenis)
+  gsap.ticker.remove(watchFrames)
+  // Lenis scrolls the window itself, so the page stays where it is
+  lenis?.destroy()
+  lenis = null
 }
 
 // Quartic in-out: Lenis' default expo-out covers most of a long jump in the

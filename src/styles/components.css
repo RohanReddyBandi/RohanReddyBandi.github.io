@@ -212,15 +212,10 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Glitch cursor (see Cursor.tsx). No visible shape: only the page     */
-/* bugging out under the pointer, a fading trail, a 4px point marker   */
-/* and an action tag. Safari/Firefox (.cursor-lite) get the tag only.  */
+/* Glitch cursor (see Cursor.tsx): the page bugging out under the      */
+/* system pointer, a smoke trail and an action tag. Safari/Firefox     */
+/* (.cursor-lite) get the smoke and the tag.                           */
 /* ------------------------------------------------------------------ */
-
-.has-cursor,
-.has-cursor * {
-  cursor: none !important;
-}
 
 /* Size of the (invisible) glitch region; tweened between modes */
 @property --shape {
@@ -248,7 +243,7 @@
   --shape: 96px;
 }
 
-/* Over the hero: no glitch, just the point marker */
+/* Over the hero: no glitch */
 .cursor.is-visible[data-mode="calm"] .cursor__head {
   visibility: hidden;
 }
@@ -266,8 +261,7 @@
   backdrop-filter: url(#cursor-glitch);
 }
 
-.cursor-lite .cursor__glitch,
-.cursor-lite .cursor__dot {
+.cursor-lite .cursor__glitch {
   display: none;
 }
 
@@ -293,26 +287,6 @@
   visibility: hidden;
   mix-blend-mode: difference;
   image-rendering: pixelated;
-}
-
-/* The exact point */
-.cursor__dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 96;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  background: #effff3;
-  box-shadow: 0 0 0 1px rgb(2 23 10 / 0.55);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.cursor.is-visible .cursor__dot {
-  opacity: 1;
 }
 
 /* Action tag beside the pointer */
