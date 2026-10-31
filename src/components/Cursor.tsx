@@ -1,26 +1,22 @@
 import gsap from 'gsap'
 import { useEffect, useRef } from 'react'
-import { accentVec } from '../lib/accent'
 import { GlitchSmoke } from '../lib/glitchSmoke'
 import { finePointer, reducedMotion } from '../lib/motion'
 
 // The page bugs out under the pointer (after ChainGPT Labs' WebGL footer):
 // a stepped region at the pointer slices what's behind it sideways in bands,
-// pixelates it and splits it into red and cyan, harder the faster you move.
-// Behind it, the pointer stirs glitched smoke that swirls and fades (after
-// lenvalproperties.com; see lib/glitchSmoke.ts). The system cursor stays: a
-// page-drawn one only moves when the page draws a frame, so it lags behind
-// the mouse, badly when the browser caps the frame rate (Chromium's Energy
-// Saver runs pages at 30fps on a low battery). Over elements tagged
-// data-cursor="open" a small tag says so. Over the hero the region stays
-// calm, since the name already has its own lens under the pointer; the smoke
-// runs everywhere.
+// pixelates it and turns it red with a white ghost split off, harder the
+// faster you move. Behind it, the pointer stirs a thin red glitched smoke
+// trail that swirls and fades (after lenvalproperties.com; see
+// lib/glitchSmoke.ts). The system cursor stays: a page-drawn one only moves
+// when the page draws a frame, so it lags behind the mouse, badly when the
+// browser caps the frame rate (Chromium's Energy Saver runs pages at 30fps on
+// a low battery). Over elements tagged data-cursor="open" a small tag says so.
 // The region is an SVG filter run as backdrop-filter, which only Chromium
 // supports; Safari and Firefox get the smoke and the tags. Mouse/trackpad
 // with motion allowed only.
 
 const INTERACTIVE = 'a, button, [role="button"], [role="slider"], summary, label'
-const CALM = '.hero'
 const LABELS: Record<string, string> = { open: 'Open ↗' }
 
 // The region's outline, in % of its own box: stepped, so glitched areas have
@@ -55,15 +51,16 @@ export default function Cursor() {
 
     const noise = filter.current!.querySelector('feTurbulence')!
     const shift = filter.current!.querySelector('feDisplacementMap')!
-    const [red, cyan] = filter.current!.querySelectorAll('feOffset')
+    const [red, ghost] = filter.current!.querySelectorAll('feOffset')
 
-    const smoke = GlitchSmoke.create(smokeCanvas.current!, accentVec)
+    const smoke = GlitchSmoke.create(smokeCanvas.current!)
     const resize = () => smoke?.resize()
     window.addEventListener('resize', resize)
 
     gsap.set(head.current, { xPercent: -50, yPercent: -50 })
-    const headX = gsap.quickTo(head.current, 'x', { duration: 0.16, ease: 'power3.out' })
-    const headY = gsap.quickTo(head.current, 'y', { duration: 0.16, ease: 'power3.out' })
+    // a short catch-up, so it stays on the pointer instead of trailing it
+    const headX = gsap.quickTo(head.current, 'x', { duration: 0.06, ease: 'power2.out' })
+    const headY = gsap.quickTo(head.current, 'y', { duration: 0.06, ease: 'power2.out' })
     const tagX = gsap.quickSetter(tag.current, 'x', 'px')
     const tagY = gsap.quickSetter(tag.current, 'y', 'px')
 
@@ -81,9 +78,9 @@ export default function Cursor() {
       lastRoll = now
       const e = energy
       noise.setAttribute('seed', String((Math.random() * 999) | 0))
-      shift.setAttribute('scale', (16 + e * 58).toFixed(1))
-      red.setAttribute('dx', (-3 - e * 6).toFixed(1))
-      cyan.setAttribute('dx', (3 + e * 5).toFixed(1))
+      shift.setAttribute('scale', (24 + e * 84).toFixed(1))
+      red.setAttribute('dx', (-3 - e * 7).toFixed(1))
+      ghost.setAttribute('dx', (4 + e * 10).toFixed(1))
     }
 
     const tick = () => {
@@ -119,7 +116,7 @@ export default function Cursor() {
       const words = LABELS[next]
       if (words) tag.current!.textContent = words
       tag.current!.classList.toggle('is-shown', Boolean(words))
-      if (next && next !== 'calm') wake(0.8) // landing on something clickable makes it bug out
+      if (next) wake(0.8) // landing on something clickable makes it bug out
     }
     const move = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
@@ -135,7 +132,7 @@ export default function Cursor() {
       el.classList.add('is-visible')
       tagX(x + TAG_OFFSET.x)
       tagY(y + TAG_OFFSET.y)
-      if (!full || mode === 'calm') return
+      if (!full) return
       headX(x)
       headY(y)
 
@@ -148,7 +145,7 @@ export default function Cursor() {
       if (e.pointerType !== 'mouse') return
       const t = e.target as Element
       const tagged = t.closest<HTMLElement>('[data-cursor]')?.dataset.cursor
-      setMode(tagged ?? (t.closest(INTERACTIVE) ? 'link' : t.closest(CALM) ? 'calm' : ''))
+      setMode(tagged ?? (t.closest(INTERACTIVE) ? 'link' : ''))
     }
     const press = () => wake(1)
     const hide = () => {
@@ -182,7 +179,8 @@ export default function Cursor() {
       </div>
 
       {/* The glitch: horizontal bands from 1D noise, stepped into a few
-          discrete shifts, then pixelated and split into red and cyan */}
+          discrete shifts, then pixelated, turned red (dark red where the page
+          is dark) and given a white ghost offset the other way */}
       <svg className="cursor__defs" aria-hidden="true" focusable="false">
         <filter
           ref={filter}
@@ -193,16 +191,16 @@ export default function Cursor() {
           height="100%"
           colorInterpolationFilters="sRGB"
         >
-          <feTurbulence type="fractalNoise" baseFrequency="0 0.06" numOctaves={1} seed={3} result="noise" />
+          <feTurbulence type="fractalNoise" baseFrequency="0 0.08" numOctaves={1} seed={3} result="noise" />
           <feComponentTransfer in="noise" result="bands">
-            <feFuncR type="discrete" tableValues="0.15 0.5 0.5 0.85 0.3 0.5 0.7" />
+            <feFuncR type="discrete" tableValues="0 0.5 1 0.5 0.15 0.85 0.5 0.3" />
             <feFuncG type="linear" slope={0} intercept={0.5} />
             <feFuncA type="linear" slope={0} intercept={1} />
           </feComponentTransfer>
           <feDisplacementMap
             in="SourceGraphic"
             in2="bands"
-            scale={16}
+            scale={24}
             xChannelSelector="R"
             yChannelSelector="G"
             result="shifted"
@@ -212,11 +210,21 @@ export default function Cursor() {
           <feTile in="cell" result="grid" />
           <feComposite in="shifted" in2="grid" operator="in" result="sampled" />
           <feMorphology in="sampled" operator="dilate" radius={3} result="pixels" />
-          <feColorMatrix in="pixels" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r" />
+          <feColorMatrix
+            in="pixels"
+            type="matrix"
+            values="0.5 1 0.3 0 0.2  0.04 0.08 0.02 0 0.01  0.06 0.12 0.03 0 0.02  0 0 0 1 0"
+            result="r"
+          />
           <feOffset in="r" dx={-3} result="redShift" />
-          <feColorMatrix in="pixels" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="gb" />
-          <feOffset in="gb" dx={3} result="cyanShift" />
-          <feBlend in="redShift" in2="cyanShift" mode="screen" />
+          <feColorMatrix
+            in="pixels"
+            type="matrix"
+            values="0.2 0.4 0.1 0 0  0.2 0.4 0.1 0 0  0.2 0.4 0.1 0 0  0 0 0 1 0"
+            result="white"
+          />
+          <feOffset in="white" dx={4} result="ghostShift" />
+          <feBlend in="redShift" in2="ghostShift" mode="screen" />
         </filter>
       </svg>
     </>

@@ -21,7 +21,6 @@ export default function App() {
 
       <Duck />
       <Intro />
-      <div className="grain" aria-hidden="true" />
       <Cursor />
     </>
   )

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------ */
-/* Hero: plain black, the name, and the x-ray lens over it (NameLens.ts)  */
+/* Hero: plain black and the name                                     */
 /* ------------------------------------------------------------------ */
 
 .hero {
@@ -9,15 +9,6 @@
   overflow: hidden;
   /* vertical swipes still scroll the page on touch screens */
   touch-action: pan-y;
-}
-
-.hero__lens {
-  position: absolute;
-  top: 0;
-  left: 0;
-  /* over the name: inside the lens it covers the letters and draws them */
-  z-index: 1;
-  pointer-events: none;
 }
 
 .hero__foot {

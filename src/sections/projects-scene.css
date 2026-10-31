@@ -60,6 +60,8 @@
   left: 50%;
   visibility: hidden;
   backface-visibility: hidden;
+  /* painted once; render() only moves it */
+  will-change: transform;
 }
 
 .pj-card__link {
@@ -157,29 +159,13 @@
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-/* The green layer that you fly into */
+/* The green layer that you fly into (drawn by render() in
+   ProjectsScene.tsx) */
 .pj-mask {
   position: absolute;
   inset: 0;
   z-index: 2;
   width: 100%;
   height: 100%;
-  transform-origin: 50% 50%;
   pointer-events: none;
-  will-change: transform;
-}
-
-.pj-mask__fill {
-  fill: var(--brand);
-}
-
-.pj-mask__grid,
-.pj-mask__ring {
-  fill: none;
-  stroke: var(--deep);
-  stroke-width: 1;
-}
-
-.pj-mask__ring {
-  stroke-opacity: 0.7;
 }

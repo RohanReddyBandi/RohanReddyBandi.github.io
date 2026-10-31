@@ -221,11 +221,11 @@
 @property --shape {
   syntax: "<length>";
   inherits: true;
-  initial-value: 56px;
+  initial-value: 44px;
 }
 
 .cursor {
-  --shape: 56px;
+  --shape: 44px;
   display: none;
   transition: --shape 0.5s var(--ease-out);
 }
@@ -236,16 +236,11 @@
 }
 
 .cursor[data-mode="link"] {
-  --shape: 68px;
+  --shape: 56px;
 }
 
 .cursor[data-mode="open"] {
-  --shape: 96px;
-}
-
-/* Over the hero: no glitch */
-.cursor.is-visible[data-mode="calm"] .cursor__head {
-  visibility: hidden;
+  --shape: 80px;
 }
 
 .cursor__glitch {
@@ -275,8 +270,7 @@
   visibility: visible;
 }
 
-/* The glitched smoke trail (lib/glitchSmoke.ts). `difference` inverts the
-   page wherever the smoke is. */
+/* The glitched smoke trail (lib/glitchSmoke.ts) */
 .cursor__smoke {
   position: fixed;
   inset: 0;
@@ -285,7 +279,6 @@
   height: 100%;
   pointer-events: none;
   visibility: hidden;
-  mix-blend-mode: difference;
   image-rendering: pixelated;
 }
 

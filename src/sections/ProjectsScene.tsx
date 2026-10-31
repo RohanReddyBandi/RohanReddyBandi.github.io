@@ -90,10 +90,9 @@ function computeLayout(el: HTMLElement): Layout {
   }
 }
 
-/** The green layer: grid squares, the pill-shaped hole and a ring around it */
-function Mask({ layout }: { layout: Layout | null }) {
-  if (!layout) return null
-  const { w, h, pillW, pillH } = layout
+/** The green layer's shapes: the fill with a pill-shaped hole, the grid
+ *  squares and a ring around the hole */
+function maskPaths({ w, h, pillW, pillH }: Layout) {
   const cx = w / 2
   const cy = h / 2
   const pill = (pw: number, ph: number) => {
@@ -102,25 +101,15 @@ function Mask({ layout }: { layout: Layout | null }) {
     const y = cy - ph / 2
     return `M ${x} ${y + r} A ${r} ${r} 0 0 1 ${x + pw} ${y + r} L ${x + pw} ${y + ph - r} A ${r} ${r} 0 0 1 ${x} ${y + ph - r} Z`
   }
-  const hole = pill(pillW, pillH)
-  const ring = pill(pillW + 22, pillH + 22)
   const cell = Math.max(64, Math.min(w, h * 1.6) / 12)
   const lines: string[] = []
   for (let x = cx % cell; x < w; x += cell) lines.push(`M ${x.toFixed(1)} 0 V ${h}`)
   for (let y = cy % cell; y < h; y += cell) lines.push(`M 0 ${y.toFixed(1)} H ${w}`)
-  const fill = `M -2 -2 H ${w + 2} V ${h + 2} H -2 Z ${hole}`
-  return (
-    <svg className="pj-mask" viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
-      <defs>
-        <clipPath id="pj-fill">
-          <path d={fill} clipRule="evenodd" />
-        </clipPath>
-      </defs>
-      <path className="pj-mask__fill" d={fill} fillRule="evenodd" />
-      <path className="pj-mask__grid" d={lines.join(' ')} clipPath="url(#pj-fill)" />
-      <path className="pj-mask__ring" d={ring} />
-    </svg>
-  )
+  return {
+    fill: new Path2D(`M -2 -2 H ${w + 2} V ${h + 2} H -2 Z ${pill(pillW, pillH)}`),
+    grid: new Path2D(lines.join(' ')),
+    ring: new Path2D(pill(pillW + 22, pillH + 22)),
+  }
 }
 
 function Card({ project, index, n, children }: { project: (typeof site.work)[number]; index: number; n: number; children: ReactNode }) {
@@ -181,7 +170,8 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
     const el = section.current!
     const box = inner.current!
     const L = layout
-    const mask = box.querySelector<SVGSVGElement>('.pj-mask')!
+    const mask = box.querySelector<HTMLCanvasElement>('.pj-mask')!
+    const sizes = [1, 0.86, 0.94, 1.08]
     const rows = gsap.utils.toArray<HTMLElement>('.pj-row', box)
     const cards = gsap.utils.toArray<HTMLElement>('.pj-card', box)
     const letters = rows.map((r) => [...r.querySelectorAll<HTMLElement>('.pj-letter')])
@@ -192,6 +182,42 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
       }),
     )
 
+    // The green layer is drawn on a canvas at each frame's zoom. As a scaled
+    // SVG the browser had to re-raster the whole screen at a new size every
+    // frame, and Dia couldn't keep up: it showed holes and missing tiles.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    mask.width = Math.round(L.w * dpr)
+    mask.height = Math.round(L.h * dpr)
+    const mctx = mask.getContext('2d')!
+    const paths = maskPaths(L)
+    const root = getComputedStyle(document.documentElement)
+    const brand = root.getPropertyValue('--brand').trim()
+    const deep = root.getPropertyValue('--deep').trim()
+    let drawnAt = 0
+    const drawMask = (s: number) => {
+      if (s === drawnAt) return
+      drawnAt = s
+      mctx.setTransform(1, 0, 0, 1, 0, 0)
+      mctx.clearRect(0, 0, mask.width, mask.height)
+      // scaled about the screen's center
+      mctx.setTransform(dpr * s, 0, 0, dpr * s, (L.w / 2) * (1 - s) * dpr, (L.h / 2) * (1 - s) * dpr)
+      mctx.fillStyle = brand
+      mctx.fill(paths.fill, 'evenodd')
+      mctx.save()
+      mctx.clip(paths.fill, 'evenodd')
+      mctx.strokeStyle = deep
+      mctx.lineWidth = 1
+      mctx.stroke(paths.grid)
+      mctx.restore()
+      mctx.globalAlpha = 0.7
+      mctx.stroke(paths.ring)
+      mctx.globalAlpha = 1
+    }
+
+    // Cards keep one size; the slight shrink for depth is a scale, so the
+    // browser never has to lay them out or repaint them while they move
+    cards.forEach((card, i) => (card.style.width = `${L.cardW * sizes[i % sizes.length]}px`))
+
     // Card timing within the middle phase: each crosses the screen over
     // SPAN of it, staggered so two are on screen at a time
     const SPAN = n > 1 ? 0.46 : 1
@@ -200,7 +226,6 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
     const inEnd = ZOOM_IN / total
     const outStart = 1 - ZOOM_OUT / total
     const lanes = L.wide ? [-0.2, 0.22] : [-0.19, 0.2]
-    const sizes = [1, 0.86, 0.94, 1.08]
     const loop = L.k * L.pitch
 
     const render = (p: number) => {
@@ -211,9 +236,9 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
 
       // The green layer scales up around the pill, exponentially so the zoom
       // feels steady, and steps aside once it's past the screen edges
-      const s = L.zoomMax ** q
-      mask.style.transform = `scale(${s.toFixed(4)})`
-      mask.style.visibility = q > 0.995 ? 'hidden' : 'visible'
+      const hidden = q > 0.995
+      mask.style.visibility = hidden ? 'hidden' : 'visible'
+      if (!hidden) drawMask(L.zoomMax ** q)
 
       const fan = q * q // copies fan out a beat after the zoom starts
       const grow = easeInOut(q)
@@ -248,11 +273,11 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
         // in front of the letters' biggest wobble (~90px), and shrunk by the
         // same amount the 1200px perspective enlarges it
         const z = 110 + Math.sin(t * Math.PI) * 16
-        const w = L.cardW * sizes[i % sizes.length] * (1 - z / 1200)
+        const shrink = 1 - z / 1200
+        const w = L.cardW * sizes[i % sizes.length] * shrink
         const x = lerp(-L.w / 2 - w * 0.6, L.w / 2 + w * 0.6, t)
         const y = lanes[i % 2] * L.h
-        card.style.width = `${w}px`
-        card.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${((0.5 - t) * 10).toFixed(1)}deg)`
+        card.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${((0.5 - t) * 10).toFixed(1)}deg) scale(${shrink.toFixed(4)})`
         card.style.pointerEvents = t > 0.05 && t < 0.95 ? 'auto' : 'none'
       })
     }
@@ -311,7 +336,7 @@ export default function ProjectsScene({ shot }: { shot: (project: (typeof site.w
             </ol>
           </div>
         </div>
-        <Mask layout={layout} />
+        <canvas className="pj-mask" aria-hidden="true" />
       </div>
     </section>
   )

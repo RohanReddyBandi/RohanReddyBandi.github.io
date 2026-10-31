@@ -1,14 +1,12 @@
 import gsap from 'gsap'
-import { Fragment, useEffect, useLayoutEffect, useRef } from 'react'
+import { Fragment, useLayoutEffect, useRef } from 'react'
 import ScrollCue from '../components/ScrollCue'
 import { site } from '../content/site'
 import { reducedMotion } from '../lib/motion'
 import { fontsLoaded, pageReady } from '../lib/sequence'
-import { NameLens } from './NameLens'
 import './hero.css'
 
-/** One line of the name, split into words and letters (for the entrance and
- *  the lens, which traces each letter) */
+/** One line of the name, split into words and letters for the entrance */
 function Line({ text }: { text: string }) {
   return (
     <span className="hero-name__line">
@@ -31,55 +29,6 @@ function Line({ text }: { text: string }) {
 
 export default function Hero() {
   const section = useRef<HTMLElement>(null)
-  const canvas = useRef<HTMLCanvasElement>(null)
-  const name = useRef<HTMLHeadingElement>(null)
-
-  // The x-ray lens over the name
-  useEffect(() => {
-    if (reducedMotion.matches) return
-    const el = section.current!
-    const lens = new NameLens(canvas.current!, name.current!)
-    const fit = () => lens.measure(el)
-    const resize = new ResizeObserver(fit)
-    resize.observe(el)
-    fontsLoaded(2500).then(fit)
-
-    // Off screen or in a background tab, nothing runs
-    let onScreen = true
-    const sync = () => lens.setVisible(onScreen && !document.hidden)
-    const seen = new IntersectionObserver(([entry]) => {
-      onScreen = entry.isIntersecting
-      sync()
-    })
-    seen.observe(el)
-    document.addEventListener('visibilitychange', sync)
-    // opens once the letters have risen in
-    let opener: gsap.core.Tween | undefined
-    Promise.all([pageReady, fontsLoaded(2500)]).then(() => {
-      opener = gsap.delayedCall(1.4, () => {
-        fit()
-        lens.start()
-      })
-    })
-
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect()
-      lens.pointer(e.clientX - r.left, e.clientY - r.top)
-    }
-    const leave = () => lens.leave()
-    el.addEventListener('pointermove', move, { passive: true })
-    el.addEventListener('pointerleave', leave)
-
-    return () => {
-      opener?.kill()
-      lens.destroy()
-      resize.disconnect()
-      seen.disconnect()
-      document.removeEventListener('visibilitychange', sync)
-      el.removeEventListener('pointermove', move)
-      el.removeEventListener('pointerleave', leave)
-    }
-  }, [])
 
   // Entrance: the letters rise in, then the tagline and scroll cue
   useLayoutEffect(() => {
@@ -113,11 +62,9 @@ export default function Hero() {
 
   return (
     <section ref={section} id="top" className="hero" aria-labelledby="hero-title">
-      <canvas ref={canvas} className="hero__lens" aria-hidden="true" />
-
       <div className="hero__foot site-grid">
         <div className="hero__stack">
-          <h1 ref={name} id="hero-title" className="hero-name">
+          <h1 id="hero-title" className="hero-name">
             <span className="sr-only">
               {site.name.first} {site.name.last}
             </span>

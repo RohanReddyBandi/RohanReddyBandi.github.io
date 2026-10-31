@@ -35,7 +35,6 @@ function NotFound() {
           </a>
         </div>
       </div>
-      <div className="grain" aria-hidden="true" />
     </main>
   )
 }
