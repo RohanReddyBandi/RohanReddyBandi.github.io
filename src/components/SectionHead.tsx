@@ -1,19 +1,17 @@
-import { useRef } from 'react'
-import { useRevealClip, useRevealLines } from '../lib/reveal'
+import { useRef, type ReactNode } from 'react'
+import { useRevealRows } from '../lib/reveal'
 
-/** Section label in mono with a hairline that draws across the grid. */
-export default function SectionHead({ label, id }: { label: string; id?: string }) {
-  const title = useRef<HTMLHeadingElement>(null)
-  const rule = useRef<HTMLSpanElement>(null)
-  useRevealLines(title)
-  useRevealClip(rule, { from: 'inset(0% 100% 0% 0%)', delay: 0.1 })
+/** A section's quiet title, with an optional handwritten note beside it. */
+export default function SectionHead({ label, id, note }: { label: string; id?: string; note?: ReactNode }) {
+  const head = useRef<HTMLDivElement>(null)
+  useRevealRows(head, '.section-head__part', { stagger: 0.15 })
 
   return (
-    <div className="section-head site-grid">
-      <h2 ref={title} id={id} className="label col-span-2 text-fg md:col-span-2">
+    <div ref={head} className="section-head">
+      <h2 id={id} className="section-head__title section-head__part">
         {label}
       </h2>
-      <span ref={rule} className="section-head__rule col-span-2 md:col-span-10" aria-hidden="true" />
+      {note && <p className="section-head__note section-head__part hand">{note}</p>}
     </div>
   )
 }

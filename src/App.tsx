@@ -1,6 +1,5 @@
-import Cursor from './components/Cursor'
+import Ambient from './components/Ambient'
 import Duck from './components/Duck'
-import Intro from './components/Intro'
 import TopBar from './components/TopBar'
 import Hero from './hero/Hero'
 import Contact from './sections/Contact'
@@ -10,6 +9,7 @@ import Work from './sections/Work'
 export default function App() {
   return (
     <>
+      <Ambient />
       <TopBar />
 
       <main id="content">
@@ -20,8 +20,6 @@ export default function App() {
       </main>
 
       <Duck />
-      <Intro />
-      <Cursor />
     </>
   )
 }

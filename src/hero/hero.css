@@ -1,119 +1,78 @@
 /* ------------------------------------------------------------------ */
-/* Hero: plain black and the name                                     */
+/* Hero: the signature and two lines, with room to breathe             */
 /* ------------------------------------------------------------------ */
 
 .hero {
   position: relative;
-  height: 100svh;
-  min-height: 520px;
-  overflow: hidden;
-  /* vertical swipes still scroll the page on touch screens */
-  touch-action: pan-y;
+  display: grid;
+  min-height: 100svh;
+  align-content: center;
+  padding-block: 7rem 6rem;
 }
 
-.hero__foot {
-  position: absolute;
-  inset: auto 0 0;
-  padding-bottom: clamp(1.25rem, 4.5svh, 3rem);
-}
-
-/*
-  The name takes a bit over half the column. "ROHAN REDDY" measures ~7.03em
-  wide in Clash Display at this tracking, so at column width / 12 it spans
-  ~59%; capped by the viewport height so short, wide screens keep room. On
-  phones each word gets its own line (ROHAN / REDDY / BANDI); "ROHAN", the
-  widest, is ~3.54em, so /5 spans ~71%. Change the name, re-measure.
-*/
-.hero__stack {
-  --name-size: min(100cqi / 5, 12svh);
-  position: relative;
-  grid-column: 1 / -1;
-  container-type: inline-size;
-}
-
-@media (width >= 48rem) {
-  .hero__stack {
-    --name-size: min(100cqi / 12, 16svh);
-  }
-}
-
-.hero-name {
+.hero__name {
+  /* a little past the column on the left, where the R's loop hangs out */
+  width: min(100%, 31rem);
+  margin-left: -0.4rem;
   color: var(--fg);
-  font-family: var(--font-display);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.hero-name__line {
-  display: block;
-  white-space: nowrap;
-  font-size: var(--name-size);
-  line-height: 0.84;
-  letter-spacing: -0.035em;
-}
-
-.hero-name__word,
-.hero-name__letter {
-  display: inline-block;
-}
-
-@media (width < 48rem) {
-  .hero-name__line:first-child .hero-name__word {
-    display: block;
-  }
-}
-
-/* Under the name on phones and tablets; beside "BANDI" on desktop */
-.hero__aside {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--gutter);
-  margin-top: 1.5rem;
 }
 
 .hero__tagline {
-  max-width: 28ch;
-  text-wrap: balance;
+  margin-top: 1.75rem;
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
 }
 
-@media (width >= 64rem) {
-  /* Starts on grid column 7; lifted so the last line's baseline sits on
-     BANDI's (which is ~0.115em of the name size above the line box bottom) */
-  .hero__aside {
-    position: absolute;
-    right: 0;
-    bottom: calc(var(--name-size) * 0.115 - 0.65rem);
-    left: calc(50% + var(--gutter) / 2);
-    margin: 0;
+.hero__cue {
+  position: absolute;
+  bottom: clamp(1.25rem, 4svh, 2.5rem);
+  left: 50%;
+  translate: -50% 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Signature (components/Signature.tsx)                                */
+/* ------------------------------------------------------------------ */
+
+.signature {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: currentColor;
+}
+
+/* Hidden until the pen gets to it; the inset spills past the letter's
+   box so nothing is shaved off its edges */
+.signature.is-waiting .signature__letter {
+  clip-path: inset(-20% 100% -20% -20%);
+}
+
+.signature.is-writing .signature__letter {
+  animation: sig-write var(--dur) linear var(--delay) both;
+}
+
+@keyframes sig-write {
+  from {
+    clip-path: inset(-20% 100% -20% -20%);
   }
-}
-
-.reveal-mask {
-  display: block;
-  overflow: hidden;
-}
-
-.reveal-line {
-  display: block;
+  to {
+    clip-path: inset(-20% -20% -20% -20%);
+  }
 }
 
 /* ------------------------------------------------------------------ */
 /* Scroll cue                                                          */
 /* ------------------------------------------------------------------ */
 
-.scroll-cue {
-  flex-shrink: 0;
-}
-
 .scroll-cue__link {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0.6rem;
   padding: 6px;
   color: var(--muted);
-  transition: color 0.3s;
+  transition: color 0.4s;
 }
 
 .scroll-cue__link:hover {
@@ -123,7 +82,7 @@
 .scroll-cue__track {
   position: relative;
   width: 1px;
-  height: 44px;
+  height: 36px;
   overflow: hidden;
   background: var(--line);
 }
@@ -131,8 +90,8 @@
 .scroll-cue__bead {
   position: absolute;
   inset: 0;
-  background: var(--accent);
-  animation: cue-run 2s var(--ease-in-out) infinite;
+  background: linear-gradient(transparent, var(--accent), transparent);
+  animation: cue-run 3.2s var(--ease-in-out) infinite;
 }
 
 @keyframes cue-run {

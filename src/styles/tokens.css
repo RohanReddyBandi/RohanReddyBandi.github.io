@@ -2,27 +2,25 @@
   Design tokens. Only these colors exist: the default Tailwind palette is
   cleared so nothing off-system sneaks in.
 
-  --accent is the one bright color, used sparingly. Canvas code reads it
-  from src/lib/accent.ts, so change both together.
+  Warm and low: a soft charcoal, warm off-white, and one quiet sage green
+  (--brand) used sparingly. Canvas code reads the colors it paints from
+  src/lib/accent.ts, so change both together.
 */
 
 :root {
-  --bg: #0b0b0c;
-  --bg-raised: #121214;
-  --fg: #edede8;
-  --muted: #8a8a85;
-  --line: rgb(237 237 232 / 0.12);
-  --brand: #2bef6a;
+  --bg: #131211;
+  --bg-raised: #1b1a18;
+  --fg: #ece7df;
+  --muted: #8e887f;
+  --line: rgb(236 231 223 / 0.09);
+  --brand: #a9d8b0;
   --accent: var(--brand);
-  /* the hero's ink and the Projects scene's ground; dark green letter
-     shadows */
-  --deep: #02170a;
-  --shadow: #0b5c27;
-  /* (a plain variable, not a theme one: Tailwind drops theme variables no
-     utility class uses) */
-  --font-condensed: "Tanker", "Arial Narrow", Impact, sans-serif;
+  /* the ambient light's warm tint */
+  --glow: 243 214 166;
 
-  --gutter: clamp(1rem, 3.2vw, 2.75rem);
+  /* one centered reading column, like a letter */
+  --column: 40rem;
+  --gutter: clamp(1.25rem, 4vw, 2rem);
 
   color-scheme: dark;
 }
@@ -36,18 +34,17 @@
   --color-line: var(--line);
 
   --font-*: initial;
-  --font-display: "Clash Display", "Helvetica Neue", Arial, sans-serif;
   --font-sans: "General Sans", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* handwritten notes in the margins */
+  --font-hand: "Caveat", "Bradley Hand", cursive;
 
   /* Type scale */
-  --text-label: 0.75rem;
-  --text-label--line-height: 1.4;
-  --text-label--letter-spacing: 0.16em;
-  --text-body: 1.0625rem;
-  --text-body--line-height: 1.6;
-  --text-lead: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
-  --text-lead--line-height: 1.35;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.5;
+  --text-body: 1rem;
+  --text-body--line-height: 1.7;
+  --text-lead: 1.0625rem;
+  --text-lead--line-height: 1.65;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);

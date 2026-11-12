@@ -17,7 +17,7 @@ export const site = {
   },
   // Projects, in this order. Years come from each repo's first commit.
   // `shot` names the screenshot in src/assets/work/ (see Work.tsx); projects
-  // without one show a [SCREENSHOT] placeholder. `code` is its card's tag.
+  // without one show a [SCREENSHOT] placeholder.
   work: [
     {
       title: 'Duck Days',
@@ -28,8 +28,6 @@ export const site = {
       href: 'https://apps.apple.com/us/app/duckdays/id6808773849',
       linkLabel: 'App Store',
       shot: 'duck-days',
-      code: 'DD',
-      self: false,
     },
     {
       title: 'TRADR',
@@ -41,8 +39,6 @@ export const site = {
       href: 'https://tradr-ebon.vercel.app/',
       linkLabel: 'Live site',
       shot: 'tradr',
-      code: 'TR',
-      self: false,
     },
     {
       title: 'Compound Growth',
@@ -54,22 +50,17 @@ export const site = {
       href: 'https://compoundgrowth.vercel.app/',
       linkLabel: 'Live site',
       shot: 'compound-growth',
-      code: 'CG',
-      self: false,
     },
     {
       title: 'This Very Website',
       line: 'You’re looking at it.',
       detail:
-        'A wall of letters you zoom into to see the projects, a cursor that leaves a thin glitched smoke trail and bugs out the page under it, and a duck. Built from scratch.',
-      tags: ['React', 'TypeScript', 'GSAP', 'WebGL', 'Canvas', 'SVG filters'],
+        'A signature that writes itself, fireflies that drift away from your cursor and come over when it rests, and a duck. Built from scratch.',
+      tags: ['React', 'TypeScript', 'GSAP', 'Canvas', 'SVG'],
       year: '2026',
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',
       linkLabel: 'Source on GitHub',
       shot: 'this-website',
-      code: 'YOU',
-      // The finale card: build facts and the site-inside-itself screenshot
-      self: true,
     },
   ],
   // Education, in this order. `under` entries sit nested beneath their parent.
