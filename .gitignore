@@ -4,4 +4,6 @@ dist
 .DS_Store
 
 # Fontshare fonts are fetched at build time (see scripts/fetch-fonts.sh)
+public/fonts/ClashDisplay-*
 public/fonts/GeneralSans-*
+public/fonts/Tanker-*

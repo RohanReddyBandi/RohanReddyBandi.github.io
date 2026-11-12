@@ -28,7 +28,6 @@
   :focus-visible {
     outline: 1px solid var(--accent);
     outline-offset: 4px;
-    border-radius: 2px;
   }
 
   /* Sections only take focus so Tab continues from them after a nav jump. */
@@ -42,24 +41,25 @@
   }
 }
 
-/* Small quiet text for labels, captions and links in the chrome */
+/* Small uppercase mono used for labels and captions */
 @utility label {
+  font-family: var(--font-mono);
   font-size: var(--text-label);
   line-height: var(--text-label--line-height);
-  letter-spacing: 0.01em;
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
 }
 
-/* Handwritten note, as if scribbled in the margin */
-@utility hand {
-  font-family: var(--font-hand);
-  font-weight: 500;
-  line-height: 1;
-}
+/* The site grid: 4 columns on phones, 12 from tablet up */
+@utility site-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--gutter);
 
-/* The one centered column everything sits in */
-@utility column {
-  width: min(100% - var(--gutter) * 2, var(--column));
-  margin-inline: auto;
+  @media (width >= 48rem) {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
 }
 
 /* Lenis' recommended rules (the package doesn't export its CSS file) */
@@ -76,3 +76,4 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+

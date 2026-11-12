@@ -1,9 +1,17 @@
-import { useRef } from 'react'
+import gsap from 'gsap'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import SectionHead from '../components/SectionHead'
 import { site } from '../content/site'
+import { reducedMotion } from '../lib/motion'
 import { useRevealRows } from '../lib/reveal'
+import ProjectsScene from './ProjectsScene'
+import './projects-scene.css'
 
 type Project = (typeof site.work)[number]
+
+// Where the floating preview runs: a mouse/trackpad on a wide screen. Everywhere
+// else each card shows its preview inline.
+const FLOATING = '(hover: hover) and (pointer: fine) and (min-width: 48rem)'
 
 // Screenshots: src/assets/work/<shot>-1600.webp and <shot>-800.webp (16:10).
 // Drop a pair in and the project picks it up; without one it shows a placeholder.
@@ -26,7 +34,7 @@ function Shot({ project }: { project: Project }) {
         className="shot__img"
         src={small}
         srcSet={`${small} 800w, ${large} 1600w`}
-        sizes="(min-width: 44rem) 40rem, 100vw"
+        sizes="(min-width: 64rem) 28rem, (min-width: 48rem) 42vw, 100vw"
         width={1600}
         height={1000}
         alt=""
@@ -37,46 +45,132 @@ function Shot({ project }: { project: Project }) {
   )
 }
 
-/** One project: its screenshot with a "click me" scribbled on the corner, then the words */
-function Card({ project }: { project: Project }) {
+function Row({ project, index }: { project: Project; index: number }) {
   return (
-    <li className="card">
-      <div className="card__media" aria-hidden="true">
+    <li className="work-row" data-index={index} data-cursor="open">
+      <div className="work-row__media" aria-hidden="true">
         <Shot project={project} />
-        <span className="card__note hand">click me ↗</span>
       </div>
-      <div className="card__row">
-        <h3 className="card__title">
-          <a className="card__link" href={project.href} target="_blank" rel="noopener">
-            {project.title}
-            <span className="sr-only"> ({project.linkLabel}, opens in a new tab)</span>
-          </a>
-        </h3>
-        <p className="card__year">{project.year}</p>
+
+      <h3 className="work-row__title">
+        <a className="work-row__link" href={project.href} target="_blank" rel="noopener">
+          {project.title}
+          <span className="sr-only"> ({project.linkLabel}, opens in a new tab)</span>
+        </a>
+      </h3>
+
+      <div className="work-row__meta">
+        <p className="work-row__line">{project.line}</p>
+        {project.detail && <p className="work-row__detail">{project.detail}</p>}
+        <ul className="work-row__tags" aria-label="Built with">
+          {project.tags.map((t) => (
+            <li key={t} className="label">
+              {t}
+            </li>
+          ))}
+        </ul>
       </div>
-      <p className="card__line">{project.line}</p>
-      {project.detail && <p className="card__detail">{project.detail}</p>}
-      <ul className="card__tags" aria-label="Built with">
-        {project.tags.map((t) => (
-          <li key={t}>{t}</li>
-        ))}
-      </ul>
+
+      <div className="work-row__end">
+        <span className="label text-muted">{project.year}</span>
+        <span className="work-row__arrow" aria-hidden="true">
+          ↗
+        </span>
+      </div>
     </li>
   )
 }
 
-export default function Work() {
+/** Reduced motion: full-width rows, with a screenshot that follows the mouse */
+function WorkRows() {
   const list = useRef<HTMLOListElement>(null)
-  useRevealRows(list, '.card', { stagger: 0.12 })
+  const preview = useRef<HTMLDivElement>(null)
+  const reel = useRef<HTMLDivElement>(null)
+  useRevealRows(list, '.work-row', { stagger: 0.1 })
+
+  // The floating preview: trails the cursor, tilts with its speed, and slides
+  // its reel to whichever project is hovered
+  useEffect(() => {
+    if (!matchMedia(FLOATING).matches) return
+    const el = list.current!
+    const pv = preview.current!
+    const still = reducedMotion.matches
+    const follow = (prop: 'x' | 'y') =>
+      still ? (v: number) => gsap.set(pv, { [prop]: v }) : gsap.quickTo(pv, prop, { duration: 0.6, ease: 'power3.out' })
+    const xTo = follow('x')
+    const yTo = follow('y')
+    const tilt = gsap.quickTo(pv, 'rotation', { duration: 0.5, ease: 'power3.out' })
+    let lastX = 0
+    let settle = 0
+    let active = -1
+
+    const move = (e: PointerEvent) => {
+      xTo(e.clientX)
+      yTo(e.clientY)
+      if (!still) {
+        tilt(gsap.utils.clamp(-8, 8, (e.clientX - lastX) * 0.35))
+        clearTimeout(settle)
+        settle = window.setTimeout(() => tilt(0), 90)
+      }
+      lastX = e.clientX
+    }
+    const over = (e: PointerEvent) => {
+      const row = (e.target as Element).closest<HTMLElement>('.work-row')
+      if (!row) return
+      const i = Number(row.dataset.index)
+      if (i === active) return
+      if (active === -1) {
+        // first entry: jump there, then reveal
+        gsap.set(pv, { x: e.clientX, y: e.clientY })
+        gsap.set(reel.current, { yPercent: (-100 / site.work.length) * i })
+        gsap.to(pv, { clipPath: 'inset(0% 0% 0% 0%)', duration: still ? 0 : 0.7, ease: 'expo.out', overwrite: 'auto' })
+      } else {
+        gsap.to(reel.current, { yPercent: (-100 / site.work.length) * i, duration: still ? 0 : 0.7, ease: 'expo.out' })
+      }
+      active = i
+      lastX = e.clientX
+    }
+    const leave = () => {
+      active = -1
+      gsap.to(pv, { clipPath: 'inset(0% 0% 100% 0%)', duration: still ? 0 : 0.5, ease: 'power3.in', overwrite: 'auto' })
+    }
+
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerover', over)
+    el.addEventListener('pointerleave', leave)
+    return () => {
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerover', over)
+      el.removeEventListener('pointerleave', leave)
+      clearTimeout(settle)
+    }
+  }, [])
 
   return (
-    <section id="work" className="section column" aria-labelledby="work-title">
-      <SectionHead label="Projects" id="work-title" note="things I've made" />
-      <ol ref={list} className="cards">
-        {site.work.map((p) => (
-          <Card key={p.title} project={p} />
+    <section id="work" className="section" aria-labelledby="work-title">
+      <SectionHead label="Projects" id="work-title" />
+
+      {/* Before the list on purpose: with no z-index, the rows paint on top,
+          so the hovered title reads over the screenshot */}
+      <div ref={preview} className="work-preview" aria-hidden="true">
+        <div ref={reel} className="work-preview__reel" style={{ '--slides': site.work.length } as CSSProperties}>
+          {site.work.map((p) => (
+            <div key={p.title} className="work-preview__slide">
+              <Shot project={p} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ol ref={list} className="work-list">
+        {site.work.map((p, i) => (
+          <Row key={p.title} project={p} index={i} />
         ))}
       </ol>
     </section>
   )
+}
+
+export default function Work() {
+  return reducedMotion.matches ? <WorkRows /> : <ProjectsScene shot={(p) => <Shot project={p} />} />
 }

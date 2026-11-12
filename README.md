@@ -15,7 +15,7 @@ npm run dev
 
 Then open http://localhost:5173.
 
-The first `npm run dev` (or `npm run build`) downloads General Sans from [Fontshare](https://www.fontshare.com) into `public/fonts/`. Its license allows self-hosting it on this site but not redistributing it through a public repo, so it's git-ignored and fetched instead. Caveat (the handwritten notes) is OFL and is committed.
+The first `npm run dev` (or `npm run build`) downloads two fonts, Clash Display and General Sans, from [Fontshare](https://www.fontshare.com) into `public/fonts/`. Their license allows self-hosting them on this site but not redistributing them through a public repo, so they're git-ignored and fetched instead. JetBrains Mono is OFL and is committed.
 
 Other scripts:
 
@@ -26,7 +26,6 @@ Other scripts:
 | `npm run lint` | Lints with oxlint |
 | `npm run fonts` | Re-fetches the Fontshare fonts (skips files already there) |
 | `npm run og` | Re-renders `public/og.png` (link preview) and the PNG favicons. Needs Node 22.18+ |
-| `npm run signature` | Regenerates the signature's letter paths in `src/content/signature.ts` from the Mrs Saint Delafield font |
 
 Add `?duck` to the URL to summon the duck right away.
 
@@ -49,12 +48,9 @@ Still to fill in (resume, a Duck Days screenshot, a few years): see [CHECKLIST.m
 | `public/resume.pdf` | Your resume. Resume links only appear once this file exists. |
 | `src/styles/tokens.css` | Colors, type scale, easing |
 | `src/lib/motion.ts` | Lenis + GSAP wiring, reduced-motion check |
-| `src/components/Ambient.tsx`, `src/lib/fireflies.ts` | The light, grain and fireflies behind the page |
-| `src/components/Signature.tsx` | The signature that writes itself (hero and footer) |
 | `public/` | Files served as-is (`favicon.svg`, `fonts/`, and later `resume.pdf`, `og.png`) |
 
 ## Font licenses
 
-- General Sans: ITF Free Font License v2.0 (ships inside the Fontshare download)
-- Caveat: SIL Open Font License 1.1, see `public/fonts/Caveat-OFL.txt`
-- Mrs Saint Delafield (the signature, as paths, not a font file): SIL Open Font License 1.1
+- Clash Display, General Sans: ITF Free Font License v2.0 (ships inside each Fontshare download)
+- JetBrains Mono: SIL Open Font License 1.1, see `public/fonts/JetBrainsMono-OFL.txt`

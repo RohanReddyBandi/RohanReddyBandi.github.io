@@ -4,7 +4,7 @@ import { site } from '../content/site'
 import { goTo, lockScroll, reducedMotion } from '../lib/motion'
 
 /**
- * Full-screen menu for phones. Fades in over the page, traps focus between
+ * Full-screen menu for phones. Wipes down over the page, traps focus between
  * the Close button and its links, and closes on Escape.
  */
 export default function MobileMenu({
@@ -30,8 +30,8 @@ export default function MobileMenu({
       lockScroll(true)
       el.querySelector<HTMLElement>('a')?.focus()
       if (still) return
-      gsap.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: 'power2.out' })
-      gsap.fromTo(links, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power2.out', stagger: 0.07, delay: 0.1 })
+      gsap.fromTo(el, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.8, ease: 'expo.inOut' })
+      gsap.fromTo(links, { yPercent: 110 }, { yPercent: 0, duration: 1, ease: 'expo.out', stagger: 0.06, delay: 0.3 })
       return
     }
 
@@ -45,7 +45,7 @@ export default function MobileMenu({
       el.hidden = true
     }
     if (still) done()
-    else gsap.to(el, { autoAlpha: 0, duration: 0.4, ease: 'power2.in', onComplete: done })
+    else gsap.to(el, { clipPath: 'inset(100% 0 0 0)', duration: 0.6, ease: 'expo.inOut', onComplete: done })
   }, [open, toggle])
 
   useEffect(() => {
@@ -72,8 +72,8 @@ export default function MobileMenu({
 
   return (
     <div id="menu" ref={panel} className="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
-      <nav aria-label="Menu" className="column">
-        <ul>
+      <nav aria-label="Menu" className="site-grid">
+        <ul className="col-span-full">
           {site.nav.map((item) => (
             <li key={item.href} className="menu__item">
               <a href={item.href} onClick={go(item.href)} className="menu__link">
@@ -83,13 +83,18 @@ export default function MobileMenu({
           ))}
         </ul>
       </nav>
-      <div className="column mt-auto flex justify-between pb-8">
+      <div className="site-grid label mt-auto pb-8">
         {__HAS_RESUME__ && (
-          <a href={site.links.resume} target="_blank" rel="noopener" className="quiet-link py-3 text-accent">
+          <a href={site.links.resume} target="_blank" rel="noopener" className="col-span-2 py-3 text-accent">
             Resume ↗
           </a>
         )}
-        <a href={site.links.github} target="_blank" rel="noopener" className="quiet-link py-3">
+        <a
+          href={site.links.github}
+          target="_blank"
+          rel="noopener"
+          className="col-span-2 col-start-3 justify-self-end py-3 text-fg"
+        >
           GitHub ↗
         </a>
       </div>

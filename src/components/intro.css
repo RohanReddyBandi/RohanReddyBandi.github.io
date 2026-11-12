@@ -1,0 +1,55 @@
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+  background: var(--bg);
+  clip-path: inset(0 0 0% 0);
+}
+
+/* Skip hint top-right, initials in the middle, name and counter at the bottom */
+.intro__inner {
+  height: 100%;
+  grid-template-rows: auto 1fr auto;
+  padding-block: 1.25rem clamp(1.25rem, 4.5svh, 3rem);
+}
+
+.intro__mark {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  gap: 0.6rem;
+  place-self: center;
+}
+
+.intro__mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.06em;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 13vw, 9rem);
+  font-weight: 600;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+}
+
+.intro__letter {
+  display: inline-block;
+}
+
+.intro__rule {
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+.intro__count {
+  justify-self: end;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+}
