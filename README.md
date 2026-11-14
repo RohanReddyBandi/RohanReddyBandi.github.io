@@ -26,6 +26,7 @@ Other scripts:
 | `npm run lint` | Lints with oxlint |
 | `npm run fonts` | Re-fetches the Fontshare fonts (skips files already there) |
 | `npm run og` | Re-renders `public/og.png` (link preview) and the PNG favicons. Needs Node 22.18+ |
+| `npm run signature` | Regenerates the signature's letter paths in `src/content/signature.ts` from the Mrs Saint Delafield font |
 
 Add `?duck` to the URL to summon the duck right away.
 
@@ -43,6 +44,8 @@ Still to fill in (resume, a Duck Days screenshot, a few years): see [CHECKLIST.m
 | --- | --- |
 | `src/content/site.ts` | All copy and links. Anything in `[BRACKETS]` is a placeholder. |
 | `src/sections/` | One file per page section |
+| `src/hero/Pond.tsx`, `src/hero/pondScene.ts` | The hero's duck pond: throw the duck, drop bread, make ripples |
+| `src/components/Signature.tsx` | The name as a signature that writes itself |
 | `404.html`, `src/not-found.tsx` | The "Page not found." page GitHub Pages serves for missing URLs |
 | `src/assets/work/` | Project screenshots: `<name>-1600.webp` and `<name>-800.webp`, 16:10 |
 | `public/resume.pdf` | Your resume. Resume links only appear once this file exists. |
@@ -54,3 +57,4 @@ Still to fill in (resume, a Duck Days screenshot, a few years): see [CHECKLIST.m
 
 - Clash Display, General Sans: ITF Free Font License v2.0 (ships inside each Fontshare download)
 - JetBrains Mono: SIL Open Font License 1.1, see `public/fonts/JetBrainsMono-OFL.txt`
+- Mrs Saint Delafield (the signature, as paths, not a font file): SIL Open Font License 1.1

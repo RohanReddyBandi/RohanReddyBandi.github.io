@@ -61,7 +61,7 @@ export const site = {
       title: 'This Very Website',
       line: 'You’re looking at it.',
       detail:
-        'A wall of letters you zoom into to see the projects, a cursor that leaves a thin glitched smoke trail and bugs out the page under it, and a duck. Built from scratch.',
+        'A pixel duck in a pond you can throw around and feed, a name that signs itself, a wall of letters you zoom into to see the projects, and a cursor that leaves a thin glitched smoke trail. Built from scratch.',
       tags: ['React', 'TypeScript', 'GSAP', 'WebGL', 'Canvas', 'SVG filters'],
       year: '2026',
       href: 'https://github.com/RohanReddyBandi/RohanReddyBandi.github.io',

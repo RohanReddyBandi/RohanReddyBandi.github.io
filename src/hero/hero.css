@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------ */
-/* Hero: plain black and the name                                     */
+/* Hero: the duck pond and the name                                    */
 /* ------------------------------------------------------------------ */
 
 .hero {
@@ -14,56 +14,124 @@
 .hero__foot {
   position: absolute;
   inset: auto 0 0;
+  z-index: 1;
   padding-bottom: clamp(1.25rem, 4.5svh, 3rem);
+  /* clicks on the words go through to the pond (and drop bread) */
+  pointer-events: none;
 }
 
-/*
-  The name takes a bit over half the column. "ROHAN REDDY" measures ~7.03em
-  wide in Clash Display at this tracking, so at column width / 12 it spans
-  ~59%; capped by the viewport height so short, wide screens keep room. On
-  phones each word gets its own line (ROHAN / REDDY / BANDI); "ROHAN", the
-  widest, is ~3.54em, so /5 spans ~71%. Change the name, re-measure.
-*/
+.hero__foot a {
+  pointer-events: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/* The duck pond (Pond.tsx, pondScene.ts)                              */
+/* ------------------------------------------------------------------ */
+
+.pond {
+  position: absolute;
+  inset: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pond__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.pond__hint {
+  position: absolute;
+  inset-inline: 0;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.8s;
+  pointer-events: none;
+}
+
+.pond__hint span {
+  grid-column: 1 / -1;
+}
+
+.pond__hint.is-ready {
+  opacity: 1;
+}
+
+.pond__hint.is-ready.is-done {
+  opacity: 0;
+}
+
+/* An invisible button kept over the duck: grab it, tab to it, press it */
+.pond__duck {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 40%;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pond__duck.is-held {
+  cursor: grabbing;
+}
+
+.pond__duck.is-away {
+  visibility: hidden;
+}
+
+.pond__duck:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.pond__bubble {
+  position: absolute;
+  bottom: 96%;
+  left: 12%;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 6px;
+  transition:
+    opacity 0.2s,
+    translate 0.3s var(--ease-out);
+}
+
+.pond__duck.is-right .pond__bubble {
+  right: 12%;
+  left: auto;
+}
+
+.pond__bubble.is-shown {
+  opacity: 1;
+  translate: 0 0;
+}
+
 .hero__stack {
-  --name-size: min(100cqi / 5, 12svh);
   position: relative;
   grid-column: 1 / -1;
-  container-type: inline-size;
+}
+
+/* The name, as a signature that writes itself (components/Signature.tsx) */
+.hero-name {
+  width: min(92%, 30rem);
+  color: var(--fg);
 }
 
 @media (width >= 48rem) {
-  .hero__stack {
-    --name-size: min(100cqi / 12, 16svh);
+  .hero-name {
+    width: min(72%, 40rem);
   }
 }
 
-.hero-name {
-  color: var(--fg);
-  font-family: var(--font-display);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.hero-name__line {
-  display: block;
-  white-space: nowrap;
-  font-size: var(--name-size);
-  line-height: 0.84;
-  letter-spacing: -0.035em;
-}
-
-.hero-name__word,
-.hero-name__letter {
-  display: inline-block;
-}
-
-@media (width < 48rem) {
-  .hero-name__line:first-child .hero-name__word {
-    display: block;
-  }
-}
-
-/* Under the name on phones and tablets; beside "BANDI" on desktop */
+/* Under the name on phones and tablets; beside it on desktop */
 .hero__aside {
   display: flex;
   align-items: flex-end;
@@ -78,14 +146,50 @@
 }
 
 @media (width >= 64rem) {
-  /* Starts on grid column 7; lifted so the last line's baseline sits on
-     BANDI's (which is ~0.115em of the name size above the line box bottom) */
+  .hero__stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--gutter);
+    align-items: end;
+  }
+
+  .hero-name {
+    width: min(100%, 52rem);
+  }
+
   .hero__aside {
-    position: absolute;
-    right: 0;
-    bottom: calc(var(--name-size) * 0.115 - 0.65rem);
-    left: calc(50% + var(--gutter) / 2);
     margin: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The signature                                                       */
+/* ------------------------------------------------------------------ */
+
+.signature {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: currentColor;
+}
+
+/* Hidden until the pen gets to it; the inset spills past the letter's
+   box so nothing is shaved off its edges */
+.signature.is-waiting .signature__letter {
+  clip-path: inset(-20% 100% -20% -20%);
+}
+
+.signature.is-writing .signature__letter {
+  animation: sig-write var(--dur) linear var(--delay) both;
+}
+
+@keyframes sig-write {
+  from {
+    clip-path: inset(-20% 100% -20% -20%);
+  }
+  to {
+    clip-path: inset(-20% -20% -20% -20%);
   }
 }
 
